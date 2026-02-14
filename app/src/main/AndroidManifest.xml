@@ -20,9 +20,75 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".admin.AdminActivity" />
+        <activity android:name=".logist.NewOrdersActivity" />
+        <activity android:name=".logist.OrdersActivity" />
+        <activity android:name=".logist.CreateOrderActivity" />
         <activity android:name=".logist.LogistActivity" />
+        <activity android:name=".logist.OrderDetailActivity" />
+        <activity android:name=".logist.CurrentOrdersActivity" />
+        <activity android:name=".logist.OrderStagesActivity" />
+        <activity android:name=".logist.Stage1ViewActivity" />
+        <activity android:name=".logist.Stage2TerminalActivity" />
+        <activity android:name=".logist.PhotosActivity" />
+        <activity android:name=".logist.DocumentsActivity" />
+        <activity android:name=".logist.Stage3WarehouseActivity" />
+        <activity android:name=".logist.Stage4DepartureStationActivity" />
+        <activity android:name=".logist.Stage5DestinationStationActivity" />
+        <activity android:name=".logist.Stage6CargoIssueActivity" />
+        <activity android:name=".logist.Stage7ContainerReturnActivity" />
+        <activity android:name=".logist.CompletedOrdersActivity" />
+        <activity android:name=".logist.CompletedOrderDetailActivity" />
+        <activity android:name=".logist.AllOrdersActivity" />
+        <activity android:name=".logist.DriversListActivity" />
+        <activity android:name=".logist.DriverDetailActivity" />
+        <activity android:name=".logist.DriverShiftsActivity" />
+        <activity android:name=".logist.ChatActivity" />
+
+        <activity android:name=".admin.AdminActivity" />
+        <activity android:name=".admin.UserManagementActivity" />
+
         <activity android:name=".driver.DriverActivity" />
+        <activity
+            android:name=".driver.OrdersListActivity"
+            android:parentActivityName=".driver.DriverActivity" />
+        <activity
+            android:name=".driver.OrderDetailActivity"
+            android:parentActivityName=".driver.OrdersListActivity" />
+        <activity
+            android:name=".driver.OrderStagesActivity"
+            android:parentActivityName=".driver.OrdersListActivity" />
+        <activity
+            android:name=".driver.StageDetailActivity"
+            android:parentActivityName=".driver.OrderStagesActivity" />
+        <activity
+            android:name=".driver.Stage1DetailActivity"
+            android:parentActivityName=".driver.OrderStagesActivity" />
+        <activity
+            android:name=".driver.Stage2DetailActivity"
+            android:parentActivityName=".driver.OrderStagesActivity" />
+        <activity
+            android:name=".driver.PhotosActivity"
+            android:parentActivityName=".driver.Stage2DetailActivity" />
+
+        <activity
+            android:name=".driver.DocumentsActivity"
+            android:parentActivityName=".driver.Stage2DetailActivity" />
+        <activity
+            android:name=".driver.Stage3DetailActivity"
+            android:parentActivityName=".driver.OrderStagesActivity" />
+        <activity
+            android:name=".driver.Stage4DetailActivity"
+            android:parentActivityName=".driver.OrderStagesActivity" />
+        <activity
+            android:name=".driver.Stage5DetailActivity"
+            android:parentActivityName=".driver.OrderStagesActivity" />
+        <activity
+            android:name=".driver.Stage6DetailActivity"
+            android:parentActivityName=".driver.OrderStagesActivity" />
+        <activity
+            android:name=".driver.Stage7DetailActivity"
+            android:parentActivityName=".driver.OrderStagesActivity" />
+
     </application>
 
 </manifest>

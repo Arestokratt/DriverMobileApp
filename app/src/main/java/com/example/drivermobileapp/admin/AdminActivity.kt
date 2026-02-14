@@ -1,5 +1,6 @@
 package com.example.drivermobileapp.admin
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -30,14 +31,15 @@ class AdminActivity : AppCompatActivity() {
 
     private fun setupClickListeners() {
         btnManageUsers.setOnClickListener {
-            // TODO: Переход к управлению пользователями
-            showMessage("Управление пользователями")
+            // Переход к управлению пользователями
+            val intent = Intent(this, UserManagementActivity::class.java)
+            startActivity(intent)
         }
 
-        btnChangePasswords.setOnClickListener {
-            // TODO: Переход к смене паролей
-            showMessage("Смена паролей")
-        }
+//        btnChangePasswords.setOnClickListener {
+//            // TODO: Переход к смене паролей
+//            showMessage("Смена паролей - в разработке")
+//        }
     }
 
     private fun displayUserInfo() {

@@ -9,30 +9,38 @@
         android:id="@+id/tvWelcome"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Панель водителя"
+        android:text="Кабинет водителя"
         android:textSize="20sp"
         android:textStyle="bold"
         android:gravity="center"
         android:layout_marginBottom="32dp" />
 
+    <!-- Одна кнопка для управления сменой -->
     <Button
-        android:id="@+id/btnViewOrders"
+        android:id="@+id/btnShiftControl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Мои заказы"
+        android:text="Начать смену"
         android:layout_marginBottom="16dp" />
 
+    <!-- Входящие заявки -->
     <Button
-        android:id="@+id/btnCurrentOrder"
+        android:id="@+id/btnIncomingOrders"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Текущий заказ"
-        android:layout_marginBottom="16dp" />
+        android:text="Входящие"
+        android:layout_marginBottom="16dp"
+        android:enabled="false"
+        android:alpha="0.5" />
 
+    <!-- Мои заявки -->
     <Button
-        android:id="@+id/btnCompleteOrder"
+        android:id="@+id/btnMyOrders"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Завершить заказ" />
+        android:text="Мои заявки"
+        android:layout_marginBottom="16dp"
+        android:enabled="false"
+        android:alpha="0.5" />
 
 </LinearLayout>

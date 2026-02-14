@@ -15,11 +15,13 @@
         android:gravity="center"
         android:layout_marginBottom="32dp" />
 
+
+    <!-- НОВАЯ КНОПКА -->
     <Button
-        android:id="@+id/btnCreateOrder"
+        android:id="@+id/btnViewOrders"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Создать заявку"
+        android:text="Заявки"
         android:layout_marginBottom="16dp" />
 
     <Button
