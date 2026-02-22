@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:fillViewport="true"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@android:color/white">
+
+        <!-- Заголовок и кнопка назад -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
+
+            <Button
+                android:id="@+id/btnBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="← Назад"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:id="@+id/tvOrderNumber"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Этап №4. Станция отправления"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="@android:color/black" />
+
+        </LinearLayout>
+
+        <!-- Информация о станции -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Информация о станции"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"
+            android:textColor="@android:color/black" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp"
+            android:background="#f5f5f5"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Станция:"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvStationName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Станция Москва-Товарная"
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp"
+            android:background="#f5f5f5"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Номер поезда:"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvTrainNumber"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="8352"
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        <!-- Временные метки -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Временные метки"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"
+            android:textColor="@android:color/black" />
+
+        <!-- Прибытие на станцию -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="12px"
+            android:background="#e8f5e8"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📍 Время прибытия на станцию"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/tvArrivedTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="02.01.2023 08:15:20"
+                android:textColor="#2e7d32"
+                android:textSize="13sp" />
+
+        </LinearLayout>
+
+        <!-- Отправление поезда -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="12px"
+            android:background="#e3f2fd"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🚂 Время отправления поезда"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/tvDepartureTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="02.01.2023 10:30:00"
+                android:textColor="#1565c0"
+                android:textSize="13sp" />
+
+        </LinearLayout>
+
+        <!-- Выезд со станции -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="16px"
+            android:background="#fff3e0"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🚚 Время выезда со станции"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/tvDepartedTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="02.01.2023 11:45:30"
+                android:textColor="#ef6c00"
+                android:textSize="13sp" />
+
+        </LinearLayout>
+
+        <!-- Заметки водителя -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Заметки водителя"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/tvDriverNotes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Контейнер сдан на станции, документы оформлены"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            android:padding="12dp"
+            android:background="#f5f5f5"
+            android:layout_marginBottom="20dp" />
+
+        <!-- Кнопка действий -->
+        <Button
+            android:id="@+id/btnDocuments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="📄 Документы станции"
+            android:layout_marginBottom="16dp"
+            android:drawablePadding="8dp" />
+
+        <!-- Прогресс бар -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+</ScrollView>

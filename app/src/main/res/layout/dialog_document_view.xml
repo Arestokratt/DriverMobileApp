@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center">
+
+    <ImageView
+        android:id="@+id/ivDocumentIcon"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:src="@android:drawable/ic_menu_agenda"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/tvDocumentDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Товарно-транспортная накладная"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:gravity="center"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tvDocumentInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Файл: waybill.pdf\nРазмер: 245 КБ"
+        android:textSize="14sp"
+        android:textColor="#666"
+        android:gravity="center" />
+
+</LinearLayout>

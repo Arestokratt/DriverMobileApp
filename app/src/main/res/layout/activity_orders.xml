@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Кнопка назад и заголовок -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp">
+
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="← Назад"
+            android:layout_marginEnd="16dp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Заявки"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+    <!-- Вкладки статусов -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/tabNew"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Новые"
+                android:layout_marginEnd="8dp"
+                android:padding="12dp" />
+
+            <Button
+                android:id="@+id/tabCurrent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Текущие"
+                android:layout_marginEnd="8dp"
+                android:padding="12dp" />
+
+            <Button
+                android:id="@+id/tabCompleted"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Выполненные"
+                android:layout_marginEnd="8dp"
+                android:padding="12dp" />
+
+            <Button
+                android:id="@+id/tabArchive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Архив"
+                android:layout_marginEnd="8dp"
+                android:padding="12dp" />
+
+            <Button
+                android:id="@+id/tabAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Все"
+                android:padding="12dp" />
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+    <!-- Кнопка создания заявки -->
+    <Button
+        android:id="@+id/btnCreateOrder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="+ Создать заявку"
+        android:layout_marginBottom="2dp" />
+
+    <!-- Расширенный поиск -->
+    <Button
+        android:id="@+id/btnAdvancedSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Перейти к расширенному поиску"
+        android:layout_marginBottom="2dp"
+        android:backgroundTint="#FF9800"
+        android:textColor="@android:color/white" />
+
+    <!-- Список заявок -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Список заявок:"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <ListView
+        android:id="@+id/ordersListView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Сообщение при пустом списке -->
+    <TextView
+        android:id="@+id/tvEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Заявок нет"
+        android:gravity="center"
+        android:textSize="16sp"
+        android:visibility="gone"
+        android:padding="32dp" />
+
+
+
+
+
+</LinearLayout>

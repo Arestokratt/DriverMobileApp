@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Заголовок и кнопка назад -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
+
+            <Button
+                android:id="@+id/btnBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="← Назад"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:id="@+id/tvStageTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Этап №1. Заявка"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <!-- Информационное сообщение -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Режим просмотра (все поля защищены от изменений)"
+            android:textSize="14sp"
+            android:textColor="#666"
+            android:gravity="center"
+            android:layout_marginBottom="16dp"
+            android:padding="8dp"
+            android:background="#f0f8ff" />
+
+        <!-- Адрес терминала приема порожнего контейнера -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:hint="Адрес терминала приема порожнего контейнера">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etTerminalPickupAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPostalAddress"
+                android:focusable="false"
+                android:clickable="false" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Тип контейнера -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:hint="Тип контейнера">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etContainerType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:focusable="false"
+                android:clickable="false" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Количество контейнеров и Дата/время подачи -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:hint="Количество контейнеров">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etContainerCount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:focusable="false"
+                    android:clickable="false" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:hint="Дата и время подачи контейнера">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etContainerDeliveryTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="datetime"
+                    android:focusable="false"
+                    android:clickable="false" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+        <!-- Адрес подачи контейнера под загрузку -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:hint="Адрес подачи контейнера под загрузку">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etLoadingAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPostalAddress"
+                android:focusable="false"
+                android:clickable="false" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Наименование груза и Вес груза -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:hint="Наименование груза">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCargoName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:focusable="false"
+                    android:clickable="false" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:hint="Вес груза">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCargoWeight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:focusable="false"
+                    android:clickable="false" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+        <!-- Контактное лицо на складе погрузки -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:hint="Контактное лицо на складе погрузки">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etLoadingContact"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:focusable="false"
+                android:clickable="false" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Наименование станции отправления -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:hint="Наименование станции отправления">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etDepartureStation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:focusable="false"
+                android:clickable="false" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Контактное лицо на станции отправления -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:hint="Контактное лицо на станции отправления">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etDepartureContact"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:focusable="false"
+                android:clickable="false" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Наименование станции назначения -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:hint="Наименование станции назначения">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etDestinationStation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:focusable="false"
+                android:clickable="false" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Контактное лицо на станции назначения -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:hint="Контактное лицо на станции назначения">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etDestinationContact"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:focusable="false"
+                android:clickable="false" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Адрес склада выгрузки -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:hint="Адрес склада выгрузки">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etUnloadingAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPostalAddress"
+                android:focusable="false"
+                android:clickable="false" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Контактное лицо на складе выгрузки -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:hint="Контактное лицо на складе выгрузки">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etUnloadingContact"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:focusable="false"
+                android:clickable="false" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Адрес терминала сдачи порожнего контейнера -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="Адрес терминала сдачи порожнего контейнера">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etTerminalReturnAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPostalAddress"
+                android:focusable="false"
+                android:clickable="false" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
+
+</ScrollView>

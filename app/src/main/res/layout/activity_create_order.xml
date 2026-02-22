@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Заголовок и кнопка назад -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
+
+            <Button
+                android:id="@+id/btnBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="← Назад"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Создание заявки"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <!-- Название заявки -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Название заявки *"
+                android:inputType="textCapWords" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Описание -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Описание заявки"
+                android:inputType="textMultiLine"
+                android:minLines="3" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Адрес отправления -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etFromAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Адрес отправления *"
+                android:inputType="textPostalAddress" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Адрес назначения -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etToAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Адрес назначения *"
+                android:inputType="textPostalAddress" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Тип груза -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etCargoType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Тип груза *"
+                android:inputType="text" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Вес и объем -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etWeight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Вес (кг) *"
+                    android:inputType="numberDecimal" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etVolume"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Объем (м³) *"
+                    android:inputType="numberDecimal" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+        <!-- Приоритет -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Приоритет:"
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp" />
+
+        <Spinner
+            android:id="@+id/spinnerPriority"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Кнопка создания -->
+        <Button
+            android:id="@+id/btnCreate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Создать заявку"
+            android:textSize="16sp"
+            style="?attr/materialButtonOutlinedStyle" />
+
+    </LinearLayout>
+
+</ScrollView>

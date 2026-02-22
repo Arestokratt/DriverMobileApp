@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:background="#f8f9fa"
+    android:layout_marginBottom="8dp">
+
+    <ImageView
+        android:id="@+id/ivPhotoIcon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@android:drawable/ic_menu_camera"
+        android:layout_marginEnd="16dp" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvPhotoName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="container_front.jpg"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvPhotoDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Передняя часть контейнера"
+            android:textColor="#666"
+            android:textSize="12sp"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tvPhotoTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="01.01.2023 10:30"
+            android:textColor="#999"
+            android:textSize="11sp" />
+
+    </LinearLayout>
+
+</LinearLayout>

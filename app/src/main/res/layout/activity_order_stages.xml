@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Заголовок и кнопка назад -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
+
+            <Button
+                android:id="@+id/btnBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="← Назад"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:id="@+id/tvOrderNumber"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Этапы заявки №"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <!-- Контейнер для этапов -->
+        <LinearLayout
+            android:id="@+id/layoutStages"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Этап 1: Заявка -->
+            <LinearLayout
+                android:id="@+id/stage1Layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/stage_background"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Этап №1. Заявка"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/stage1Status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⏳ В процессе"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <!-- Этап 2: Терминал -->
+            <LinearLayout
+                android:id="@+id/stage2Layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/stage_background"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Этап №2. Терминал"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/stage2Status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⏳ В процессе"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <!-- Этап 3: Склад -->
+            <LinearLayout
+                android:id="@+id/stage3Layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/stage_background"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Этап №3. Склад"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/stage3Status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⏳ В процессе"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <!-- Этап 4: Станция отправления -->
+            <LinearLayout
+                android:id="@+id/stage4Layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/stage_background"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Этап №4. Станция отправления"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/stage4Status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⏳ В процессе"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <!-- Этап 5: Станция назначения -->
+            <LinearLayout
+                android:id="@+id/stage5Layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/stage_background"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Этап №5. Станция назначения"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/stage5Status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⏳ В процессе"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <!-- Этап 6: Выдача груза -->
+            <LinearLayout
+                android:id="@+id/stage6Layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/stage_background"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Этап №6. Выдача груза"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/stage6Status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⏳ В процессе"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <!-- Этап 7: Сдача порожнего контейнера -->
+            <LinearLayout
+                android:id="@+id/stage7Layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/stage_background"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Этап №7. Сдача порожнего контейнера"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/stage7Status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⏳ В процессе"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Информационное сообщение -->
+        <TextView
+            android:id="@+id/tvInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ℹ️ Нажмите на этап для просмотра деталей"
+            android:textSize="12sp"
+            android:textColor="#666"
+            android:gravity="center"
+            android:layout_marginTop="16dp"
+            android:padding="8dp" />
+
+    </LinearLayout>
+
+</ScrollView>

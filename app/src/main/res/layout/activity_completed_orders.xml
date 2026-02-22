@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Кнопка назад и заголовок -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp">
+
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="← Назад"
+            android:layout_marginEnd="16dp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Выполненные заявки"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+    <!-- Фильтр -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Фильтр:"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp" />
+
+    <Spinner
+        android:id="@+id/spinnerFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Поиск -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp">
+
+        <EditText
+            android:id="@+id/etSearch"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Поиск..."
+            android:inputType="text"
+            android:imeOptions="actionSearch"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/btnSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Найти" />
+
+    </LinearLayout>
+
+    <!-- Расширенный поиск -->
+    <Button
+        android:id="@+id/btnAdvancedSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Перейти к расширенному поиску"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="#FF9800"
+        android:textColor="@android:color/white" />
+
+    <!-- Прогресс бар загрузки -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone" />
+
+    <!-- Список заявок -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Список выполненных заявок:"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <ListView
+        android:id="@+id/ordersListView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Сообщение при пустом списке -->
+    <TextView
+        android:id="@+id/tvEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Загрузка заявок..."
+        android:gravity="center"
+        android:textSize="16sp"
+        android:padding="32dp" />
+
+</LinearLayout>

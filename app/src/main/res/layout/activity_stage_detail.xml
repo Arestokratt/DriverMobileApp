@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Заголовок и кнопка назад -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp">
+
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="← Назад"
+            android:layout_marginEnd="16dp" />
+
+        <TextView
+            android:id="@+id/tvStageTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Этап"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+    <!-- Информация о этапе -->
+    <TextView
+        android:id="@+id/tvOrderInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Информация о этапе"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:layout_marginTop="32dp" />
+
+</LinearLayout>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <TextView
+        android:id="@+id/tvOrderNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Заявка №12345"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp" />
+
+    <TextView
+        android:id="@+id/tvCustomerName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Иван Иванов"
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp" />
+
+    <TextView
+        android:id="@+id/tvAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ул. Примерная, д. 123"
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp" />
+
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Новая"
+        android:textSize="12sp"
+        android:textColor="#666666" />
+
+</LinearLayout>

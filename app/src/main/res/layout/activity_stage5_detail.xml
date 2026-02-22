@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Заголовок и кнопка назад -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
+
+            <Button
+                android:id="@+id/btnBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="← Назад"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:id="@+id/tvStageTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Этап №5. Станция назначения"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <!-- Информация о станции -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Информация о станции:"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:hint="Наименование станции назначения">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etStationName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:focusable="false"
+                android:clickable="false" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Контактное лицо -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="Контактное лицо на станции">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etStationContact"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:focusable="false"
+                android:clickable="false" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Информация о контейнере -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Информация о контейнере:"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"
+            android:layout_marginTop="16dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:hint="Тип контейнера">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etContainerType"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:focusable="false"
+                    android:clickable="false" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:hint="Количество контейнеров">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etContainerCount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:focusable="false"
+                    android:clickable="false" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+        <!-- Информация о грузе -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Информация о грузе:"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"
+            android:layout_marginTop="16dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:hint="Наименование груза">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCargoName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:focusable="false"
+                    android:clickable="false" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:hint="Вес груза">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCargoWeight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:focusable="false"
+                    android:clickable="false" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+        <!-- Временные метки -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Временные метки:"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"
+            android:layout_marginTop="16dp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:hint="Время прибытия на станцию">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etStationArrivalTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="datetime"
+                android:focusable="false"
+                android:clickable="false" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="Время выезда со станции">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etStationDepartureTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="datetime"
+                android:focusable="false"
+                android:clickable="false" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Кнопки действий -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Действия:"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Кнопка Приехал -->
+        <Button
+            android:id="@+id/btnArrived"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Приехал"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="#4CAF50"
+            android:textColor="@android:color/white" />
+
+        <!-- Кнопка Уехал -->
+        <Button
+            android:id="@+id/btnDeparted"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Уехал"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="#2196F3"
+            android:textColor="@android:color/white" />
+
+        <!-- Группа кнопок Фото и Документы -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <Button
+                android:id="@+id/btnPhotos"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Фото"
+                android:layout_marginEnd="8dp"
+                android:backgroundTint="#FF9800"
+                android:textColor="@android:color/white" />
+
+            <Button
+                android:id="@+id/btnDocuments"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Документы"
+                android:layout_marginStart="8dp"
+                android:backgroundTint="#9C27B0"
+                android:textColor="@android:color/white" />
+
+        </LinearLayout>
+
+        <!-- Счетчики фото и документов -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/tvPhotosCount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Фото: 0"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:padding="8dp"
+                android:background="#E8F5E8" />
+
+            <TextView
+                android:id="@+id/tvDocumentsCount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Документы: 0"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:padding="8dp"
+                android:background="#E3F2FD" />
+
+        </LinearLayout>
+
+        <!-- Статус этапа -->
+        <TextView
+            android:id="@+id/tvStageStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Статус: ⏳ В процессе"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:padding="12dp"
+            android:background="#FFF3E0" />
+
+    </LinearLayout>
+
+</ScrollView>

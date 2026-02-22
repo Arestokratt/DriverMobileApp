@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:fillViewport="true"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@android:color/white">
+
+        <!-- Заголовок и кнопка назад -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
+
+            <Button
+                android:id="@+id/btnBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="← Назад"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Карточка водителя"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="@android:color/black" />
+
+        </LinearLayout>
+
+        <!-- Фото водителя -->
+        <ImageView
+            android:id="@+id/ivDriverPhoto"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="20dp"
+            android:background="#E0E0E0"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_person_placeholder" />
+
+        <!-- Основная информация -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Основная информация"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"
+            android:textColor="@android:color/black" />
+
+        <!-- ФИО -->
+        <TextView
+            android:id="@+id/tvDriverName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Фамилия Имя Отчество"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"
+            android:gravity="center"
+            android:textColor="@android:color/black" />
+
+        <!-- Контактная информация -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Телефон:"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvPhoneNumber"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="+7-999-123-45-67"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        <!-- Паспортные данные -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Паспорт:"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvPassportData"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="4510 123456"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        <!-- Водительское удостоверение -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="В/у:"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvDriverLicense"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="77 АБ 123456"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        <!-- Рейтинг -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Рейтинг:"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvRating"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="⭐ 4.8/5.0"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        <!-- Информация о машине -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Автомобиль"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/tvVehicleInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Марка, модель\nГос. номер\nГрузоподъемность"
+            android:textSize="14sp"
+            android:layout_marginBottom="24dp"
+            android:padding="12dp"
+            android:background="#f5f5f5"
+            android:lineSpacingExtra="4dp" />
+
+        <!-- Действия -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Действия"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"
+            android:textColor="@android:color/black" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <Button
+                android:id="@+id/btnChat"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="💬 Чат"
+                android:layout_marginEnd="4dp"
+                android:backgroundTint="#2196F3"
+                android:textColor="@android:color/white" />
+
+            <Button
+                android:id="@+id/btnCall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="📞 Звонок"
+                android:layout_marginStart="4dp"
+                android:backgroundTint="#4CAF50"
+                android:textColor="@android:color/white" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnShifts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="📅 Смены"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="#FF9800"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+
+</ScrollView>

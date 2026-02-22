@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/cardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/card_background"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:padding="16dp"
+    android:layout_marginBottom="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:id="@+id/tvOrderNumber"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Заявка №000"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/tvOrderDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="01.01.2024"
+            android:textSize="14sp"
+            android:textColor="#666" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvClientName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Клиент"
+        android:textSize="14sp"
+        android:textColor="#333"
+        android:layout_marginBottom="4dp" />
+
+    <TextView
+        android:id="@+id/tvCargoInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Груз, вес"
+        android:textSize="14sp"
+        android:textColor="#666" />
+
+</LinearLayout>

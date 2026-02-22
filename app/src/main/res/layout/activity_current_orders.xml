@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Кнопка назад и заголовок -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp">
+
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="← Назад"
+            android:layout_marginEnd="16dp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Текущие заявки"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+    <!-- ОСНОВНАЯ ФОРМА ПОИСКА ЗАЯВОК -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@android:color/white"
+        android:padding="16dp"
+        android:elevation="2dp"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Поиск заявок"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Строка поиска -->
+        <EditText
+            android:id="@+id/etSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Введите номер заявки, наименование грузоотправителя, дату подачи заявки"
+            android:inputType="text"
+            android:imeOptions="actionSearch"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Кнопки поиска -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnSearch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Найти"
+                android:layout_marginEnd="8dp"
+                android:backgroundTint="#2196F3"
+                android:textColor="@android:color/white" />
+
+            <Button
+                android:id="@+id/btnAdvancedSearch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Перейти к расширенному поиску"
+                android:layout_marginStart="8dp"
+                android:backgroundTint="#FF9800"
+                android:textColor="@android:color/white" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- РАСШИРЕННАЯ ФОРМА ПОИСКА (изначально скрыта) -->
+    <LinearLayout
+        android:id="@+id/advancedSearchLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@android:color/white"
+        android:padding="16dp"
+        android:elevation="2dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Расширенный поиск"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Строка поиска для расширенного поиска -->
+        <EditText
+            android:id="@+id/etAdvancedSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Введите номер заявки, наименование грузоотправителя, дата подачи заявки"
+            android:inputType="text"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Фильтр количества выводимых заявок -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Выводить по:"
+                android:textSize="14sp"
+                android:layout_marginEnd="8dp" />
+
+            <Spinner
+                android:id="@+id/spinnerPageSize"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <!-- Фильтр сортировки -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Сортировать:"
+                android:textSize="14sp"
+                android:layout_marginEnd="8dp" />
+
+            <Spinner
+                android:id="@+id/spinnerSort"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Прогресс бар загрузки -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone" />
+
+    <!-- Список заявок -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Список текущих заявок:"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <ListView
+        android:id="@+id/ordersListView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Сообщение при пустом списке -->
+    <TextView
+        android:id="@+id/tvEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Загрузка заявок..."
+        android:gravity="center"
+        android:textSize="16sp"
+        android:padding="32dp" />
+
+</LinearLayout>

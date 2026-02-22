@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Заголовок и кнопка назад -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
+
+            <Button
+                android:id="@+id/btnBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="← Назад"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Детали заявки"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <!-- Основная информация -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Основная информация"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="№ заявки:"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvOrderNumber"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="2023-0001" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Дата подачи:"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvOrderDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="01.01.2023 10:00" />
+
+        </LinearLayout>
+
+        <!-- Информация о контейнере -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Информация о контейнере"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:stretchColumns="1">
+
+            <TableRow>
+                <TextView android:text="Тип контейнера:" android:textStyle="bold" android:padding="4dp"/>
+                <TextView android:id="@+id/tvContainerType" android:padding="4dp"/>
+            </TableRow>
+
+            <TableRow>
+                <TextView android:text="Количество:" android:textStyle="bold" android:padding="4dp"/>
+                <TextView android:id="@+id/tvContainerCount" android:padding="4dp"/>
+            </TableRow>
+
+            <TableRow>
+                <TextView android:text="Дата/время подачи:" android:textStyle="bold" android:padding="4dp"/>
+                <TextView android:id="@+id/tvContainerDateTime" android:padding="4dp"/>
+            </TableRow>
+
+            <TableRow>
+                <TextView android:text="Адрес подачи:" android:textStyle="bold" android:padding="4dp"/>
+                <TextView android:id="@+id/tvContainerAddress" android:padding="4dp"/>
+            </TableRow>
+
+        </TableLayout>
+
+        <!-- Информация о грузоотправителе -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Грузоотправитель"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:stretchColumns="1">
+
+            <TableRow>
+                <TextView android:text="Контактное лицо:" android:textStyle="bold" android:padding="4dp"/>
+                <TextView android:id="@+id/tvLoadingContact" android:padding="4dp"/>
+            </TableRow>
+
+            <TableRow>
+                <TextView android:text="Наименование:" android:textStyle="bold" android:padding="4dp"/>
+                <TextView android:id="@+id/tvClientName" android:padding="4dp"/>
+            </TableRow>
+
+            <TableRow>
+                <TextView android:text="Почтовый адрес:" android:textStyle="bold" android:padding="4dp"/>
+                <TextView android:id="@+id/tvClientAddress" android:padding="4dp"/>
+            </TableRow>
+
+        </TableLayout>
+
+        <!-- Информация о грузе -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Информация о грузе"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:stretchColumns="1">
+
+            <TableRow>
+                <TextView android:text="Наименование груза:" android:textStyle="bold" android:padding="4dp"/>
+                <TextView android:id="@+id/tvCargoName" android:padding="4dp"/>
+            </TableRow>
+
+            <TableRow>
+                <TextView android:text="Количество мест:" android:textStyle="bold" android:padding="4dp"/>
+                <TextView android:id="@+id/tvCargoPieces" android:padding="4dp"/>
+            </TableRow>
+
+            <TableRow>
+                <TextView android:text="Вес груза:" android:textStyle="bold" android:padding="4dp"/>
+                <TextView android:id="@+id/tvCargoWeight" android:padding="4dp"/>
+            </TableRow>
+
+        </TableLayout>
+
+        <!-- Станции -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Станции"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:stretchColumns="1">
+
+            <TableRow>
+                <TextView android:text="Станция отправления:" android:textStyle="bold" android:padding="4dp"/>
+                <TextView android:id="@+id/tvDepartureStation" android:padding="4dp"/>
+            </TableRow>
+
+            <TableRow>
+                <TextView android:text="Станция назначения:" android:textStyle="bold" android:padding="4dp"/>
+                <TextView android:id="@+id/tvDestinationStation" android:padding="4dp"/>
+            </TableRow>
+
+        </TableLayout>
+
+        <!-- Грузополучатель -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Грузополучатель"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:stretchColumns="1">
+
+            <TableRow>
+                <TextView android:text="Наименование:" android:textStyle="bold" android:padding="4dp"/>
+                <TextView android:id="@+id/tvConsigneeName" android:padding="4dp"/>
+            </TableRow>
+
+            <TableRow>
+                <TextView android:text="Почтовый адрес:" android:textStyle="bold" android:padding="4dp"/>
+                <TextView android:id="@+id/tvConsigneeAddress" android:padding="4dp"/>
+            </TableRow>
+
+            <TableRow>
+                <TextView android:text="Контактное лицо:" android:textStyle="bold" android:padding="4dp"/>
+                <TextView android:id="@+id/tvUnloadingContact" android:padding="4dp"/>
+            </TableRow>
+
+        </TableLayout>
+
+        <!-- Дополнительная информация -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Дополнительная информация"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:stretchColumns="1">
+
+            <TableRow>
+                <TextView android:text="Примечание:" android:textStyle="bold" android:padding="4dp"/>
+                <TextView android:id="@+id/tvNotes" android:padding="4dp"/>
+            </TableRow>
+
+            <TableRow>
+                <TextView android:text="Терминал вывоза:" android:textStyle="bold" android:padding="4dp"/>
+                <TextView android:id="@+id/tvTerminal" android:padding="4dp"/>
+            </TableRow>
+
+        </TableLayout>
+
+        <!-- Кнопки действий -->
+        <Button
+            android:id="@+id/btnAddTerminal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Добавить терминал вывоза"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btnAssignDriver"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Выбрать водителя"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Статус водителя -->
+        <TextView
+            android:id="@+id/tvDriverStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Водитель не назначен"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp"
+            android:padding="8dp"
+            android:background="#f0f0f0" />
+
+        <!-- Кнопка отправки -->
+        <Button
+            android:id="@+id/btnSendOrder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Отправить заявку водителю"
+            android:layout_marginBottom="16dp"
+            style="?attr/materialButtonOutlinedStyle" />
+
+        <!-- Прогресс бар -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+</ScrollView>
