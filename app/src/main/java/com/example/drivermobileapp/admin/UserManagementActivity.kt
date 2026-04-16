@@ -10,6 +10,12 @@ import com.example.drivermobileapp.data.models.UserRole
 
 import android.app.AlertDialog
 import android.widget.EditText
+import com.example.drivermobileapp.data.api.LoginRequest
+import com.example.drivermobileapp.data.api.RetrofitClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class UserManagementActivity : AppCompatActivity() {
 
@@ -20,13 +26,33 @@ class UserManagementActivity : AppCompatActivity() {
     private lateinit var usersListView: ListView
     private lateinit var tvEmptyList: TextView
 
-    // Временное хранилище пользователей (позже заменим на БД)
-    private val users = mutableListOf(
-        User("1", "admin", "admin123", UserRole.ADMIN, "Администратор Системы"),
-        User("2", "logist1", "logist123", UserRole.LOGIST, "Иванов Иван"),
-        User("3", "driver1", "driver123", UserRole.DRIVER, "Петров Петр"),
-        User("4", "driver2", "driver456", UserRole.DRIVER, "Сидоров Алексей")
-    )
+
+    private val users = mutableListOf<User>()
+
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = RetrofitClient.instance.getAllUsers()
+                withContext(Dispatchers.Main) {
+                    users.clear()
+                    users.addAll(response.map { userResponse ->
+                        User(
+                            id = userResponse.id.toString(),
+                            login = userResponse.login,
+                            password = "",
+                            role = UserRole.valueOf(userResponse.role.uppercase()),
+                            fullName = userResponse.name,
+                            isActive = true
+                        )
+                    })
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@UserManagementActivity, "Ошибка загрузки пользователей: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
 
     private var filteredUsers = mutableListOf<User>()
     private var selectedUser: User? = null

@@ -43,7 +43,7 @@ class OrderRepository {
         }
     }
 
-    // Метод для добавления тестовых данных
+    // Метод для добавления тестовых данных в базу данных!!!
     fun addTestOrders() {
         if (orders.isEmpty()) {
             orders.addAll(listOf(

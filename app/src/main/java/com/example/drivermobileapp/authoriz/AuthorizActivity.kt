@@ -1,6 +1,6 @@
 package com.example.drivermobileapp.authoriz
 
-import com.example.drivermobileapp.R  // ← ЭТА СТРОКА ВАЖНА!
+import com.example.drivermobileapp.R
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -13,7 +13,10 @@ import com.example.drivermobileapp.data.models.UserRole
 import com.example.drivermobileapp.admin.AdminActivity
 import com.example.drivermobileapp.logist.LogistActivity
 import com.example.drivermobileapp.driver.DriverActivity
+import com.example.drivermobileapp.data.api.RetrofitClient
+import com.example.drivermobileapp.data.api.LoginRequest
 import com.google.android.material.textfield.TextInputEditText
+import kotlinx.coroutines.*
 
 class AuthActivity : AppCompatActivity() {
 
@@ -21,13 +24,6 @@ class AuthActivity : AppCompatActivity() {
     private lateinit var etPassword: TextInputEditText
     private lateinit var btnLogin: Button
     private lateinit var progressBar: ProgressBar
-
-    // Временные данные для тестирования
-    private val users = listOf(
-        User("1", "admin", "admin123", UserRole.ADMIN, "Администратор Системы"),
-        User("2", "logist1", "logist123", UserRole.LOGIST, "Иванов Иван"),
-        User("3", "driver1", "driver123", UserRole.DRIVER, "Петров Петр")
-    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,18 +68,36 @@ class AuthActivity : AppCompatActivity() {
     private fun authenticateUser(login: String, password: String) {
         showLoading(true)
 
-        // Имитация проверки (позже заменим на реальную)
-        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-            val user = users.find { it.login == login && it.password == password }
+        // Запускаем запрос к API в фоновом потоке
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // Отправляем запрос на сервер
+                val response = RetrofitClient.instance.login(LoginRequest(login, password))
 
-            if (user != null && user.isActive) {
-                navigateToRoleScreen(user)
-            } else {
-                showError("Неверный логин или пароль")
+                // Переключаемся на главный поток для обновления UI
+                withContext(Dispatchers.Main) {
+                    showLoading(false)
+
+                    // Создаем объект User из ответа API
+                    val user = User(
+                        id = response.id.toString(),
+                        login = response.login,
+                        password = "", // Пароль не возвращается с сервера
+                        role = enumValueOf<UserRole>(response.role.uppercase()),
+                        fullName = response.name,
+                        isActive = true
+                    )
+
+                    navigateToRoleScreen(user)
+                }
+            } catch (e: Exception) {
+                // Ошибка подключения или неверные данные
+                withContext(Dispatchers.Main) {
+                    showLoading(false)
+                    showError("Ошибка: ${e.message ?: "Не удалось подключиться к серверу"}")
+                }
             }
-
-            showLoading(false)
-        }, 1000)
+        }
     }
 
     private fun navigateToRoleScreen(user: User) {
