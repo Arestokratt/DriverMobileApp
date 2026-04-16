@@ -3,10 +3,14 @@ package com.example.drivermobileapp.logist
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
 import com.example.drivermobileapp.R
 import com.example.drivermobileapp.data.models.Order
+import com.example.drivermobileapp.data.models.OrderPriority
 import com.example.drivermobileapp.data.models.OrderStatus
 import com.example.drivermobileapp.data.models.User
 
@@ -49,15 +53,18 @@ class CreateOrderActivity : AppCompatActivity() {
     }
 
     private fun setupSpinner() {
-        val priorities = arrayOf("Обычный", "Срочный", "Очень срочный")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, priorities)
+        val adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            OrderPriority.spinnerItems()
+        )
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerPriority.adapter = adapter
     }
 
     private fun setupClickListeners() {
         btnBack.setOnClickListener {
-            finish() // Возврат к списку заявок
+            finish()
         }
 
         btnCreate.setOnClickListener {
@@ -100,25 +107,25 @@ class CreateOrderActivity : AppCompatActivity() {
                 etWeight.error = "Вес должен быть больше 0"
                 return false
             }
-        } catch (e: NumberFormatException) {
+        } catch (_: NumberFormatException) {
             etWeight.error = "Введите корректный вес"
             return false
         }
 
         val volumeText = etVolume.text.toString().trim()
         if (volumeText.isEmpty()) {
-            etVolume.error = "Введите объем"
+            etVolume.error = "Введите объём"
             return false
         }
 
         try {
             val volume = volumeText.toDouble()
             if (volume <= 0) {
-                etVolume.error = "Объем должен быть больше 0"
+                etVolume.error = "Объём должен быть больше 0"
                 return false
             }
-        } catch (e: NumberFormatException) {
-            etVolume.error = "Введите корректный объем"
+        } catch (_: NumberFormatException) {
+            etVolume.error = "Введите корректный объём"
             return false
         }
 
@@ -126,32 +133,20 @@ class CreateOrderActivity : AppCompatActivity() {
     }
 
     private fun createOrder() {
-        val title = etTitle.text.toString().trim()
-        val description = etDescription.text.toString().trim()
-        val fromAddress = etFromAddress.text.toString().trim()
-        val toAddress = etToAddress.text.toString().trim()
-        val cargoType = etCargoType.text.toString().trim()
-        val weight = etWeight.text.toString().trim().toDouble()
-        val volume = etVolume.text.toString().trim().toDouble()
-        val priority = spinnerPriority.selectedItemPosition
-
-        // Создаем новую заявку
         val newOrder = Order(
-            id = System.currentTimeMillis().toString(), // Временный ID
-            title = title,
-            description = description,
-            fromAddress = fromAddress,
-            toAddress = toAddress,
-            cargoType = cargoType,
-            weight = weight,
-            volume = volume,
+            id = System.currentTimeMillis().toString(),
+            title = etTitle.text.toString().trim(),
+            description = etDescription.text.toString().trim(),
+            fromAddress = etFromAddress.text.toString().trim(),
+            toAddress = etToAddress.text.toString().trim(),
+            cargoType = etCargoType.text.toString().trim(),
+            weight = etWeight.text.toString().trim().toDouble(),
+            volume = etVolume.text.toString().trim().toDouble(),
             status = OrderStatus.NEW,
-            createdBy = currentUser?.id ?: ""
+            createdBy = currentUser?.id ?: "",
+            priority = OrderPriority.fromSpinnerPosition(spinnerPriority.selectedItemPosition)
         )
 
-        // TODO: Сохранить заявку в базу данных
-
-        // Показываем подтверждение
         showSuccessDialog(newOrder)
     }
 
@@ -160,19 +155,19 @@ class CreateOrderActivity : AppCompatActivity() {
             .setTitle("Заявка создана!")
             .setMessage(
                 "Заявка '${order.title}' успешно создана.\n\n" +
-                        "Статус: Новая\n" +
-                        "Груз: ${order.cargoType}\n" +
-                        "Вес: ${order.weight} кг\n" +
-                        "Объем: ${order.volume} м³"
+                    "Статус: Новая\n" +
+                    "Приоритет: ${OrderPriority.label(order.priority)}\n" +
+                    "Груз: ${order.cargoType}\n" +
+                    "Вес: ${order.weight} кг\n" +
+                    "Объём: ${order.volume} м³"
             )
             .setPositiveButton("OK") { dialog, _ ->
-                // Передаем созданную заявку обратно в OrdersActivity
                 val resultIntent = Intent()
                 resultIntent.putExtra("NEW_ORDER", order)
                 setResult(RESULT_OK, resultIntent)
 
                 dialog.dismiss()
-                finish() // Возвращаемся к списку заявок
+                finish()
             }
             .setCancelable(false)
             .show()

@@ -1,14 +1,21 @@
 package com.example.drivermobileapp.logist
 
-import androidx.core.content.ContextCompat
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.ListView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.example.drivermobileapp.R
 import com.example.drivermobileapp.data.models.Order
+import com.example.drivermobileapp.data.models.OrderPriority
+import com.example.drivermobileapp.data.models.OrderPriorityStore
 import com.example.drivermobileapp.data.models.OrderStatus
 import com.example.drivermobileapp.data.models.User
 
@@ -38,7 +45,7 @@ class OrdersActivity : AppCompatActivity() {
         setupTabs()
         setupClickListeners()
         loadSampleOrders()
-        filterOrders(OrderStatus.NEW) // По умолчанию показываем "Новые"
+        filterOrders(OrderStatus.NEW)
     }
 
     private fun initViews() {
@@ -54,14 +61,11 @@ class OrdersActivity : AppCompatActivity() {
     }
 
     private fun setupTabs() {
-        // Начальная активная вкладка
         setActiveTab(tabNew)
     }
 
     private fun setupClickListeners() {
-        btnBack.setOnClickListener {
-            finish() // Возврат на главную страницу логиста
-        }
+        btnBack.setOnClickListener { finish() }
 
         btnCreateOrder.setOnClickListener {
             val intent = Intent(this, CreateOrderActivity::class.java)
@@ -69,23 +73,19 @@ class OrdersActivity : AppCompatActivity() {
             startActivityForResult(intent, 1)
         }
 
-        // ОБНОВЛЕННЫЕ ОБРАБОТЧИКИ ВКЛАДОК
         tabNew.setOnClickListener {
-            // Переход к экрану новых заявок из 1С
             val intent = Intent(this, NewOrdersActivity::class.java)
             intent.putExtra("USER_DATA", currentUser)
             startActivity(intent)
         }
 
         tabCurrent.setOnClickListener {
-            // Переход к экрану текущих заявок
             val intent = Intent(this, CurrentOrdersActivity::class.java)
             intent.putExtra("USER_DATA", currentUser)
             startActivity(intent)
         }
 
         tabCompleted.setOnClickListener {
-            // Переход к экрану выполненных заявок
             val intent = Intent(this, CompletedOrdersActivity::class.java)
             intent.putExtra("USER_DATA", currentUser)
             startActivity(intent)
@@ -97,13 +97,11 @@ class OrdersActivity : AppCompatActivity() {
         }
 
         tabAll.setOnClickListener {
-            // Переход к экрану всех заявок
             val intent = Intent(this, AllOrdersActivity::class.java)
             intent.putExtra("USER_DATA", currentUser)
             startActivity(intent)
         }
 
-        // Обработчик клика по заявке в списке
         ordersListView.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             val order = filteredOrders[position]
             showOrderDetails(order)
@@ -112,7 +110,6 @@ class OrdersActivity : AppCompatActivity() {
 
     private fun filterOrders(status: OrderStatus?) {
         currentFilter = status
-
         filteredOrders.clear()
 
         if (status == null) {
@@ -120,6 +117,11 @@ class OrdersActivity : AppCompatActivity() {
         } else {
             filteredOrders.addAll(orders.filter { it.status == status })
         }
+
+        filteredOrders.sortWith(
+            compareByDescending<Order> { OrderPriority.rank(it.priority) }
+                .thenByDescending { it.createdAt }
+        )
 
         updateOrdersList()
     }
@@ -135,29 +137,31 @@ class OrdersActivity : AppCompatActivity() {
                 OrderStatus.ARCHIVED -> "Архивных заявок нет"
                 null -> "Заявок нет"
             }
-        } else {
-            ordersListView.visibility = View.VISIBLE
-            tvEmpty.visibility = View.GONE
-
-            val orderStrings = filteredOrders.map { order ->
-                "${order.title}\nОт: ${order.fromAddress} → К: ${order.toAddress}\n" +
-                        "Груз: ${order.cargoType}, ${order.weight}кг"
-            }
-
-            val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, orderStrings)
-            ordersListView.adapter = adapter
+            return
         }
+
+        ordersListView.visibility = View.VISIBLE
+        tvEmpty.visibility = View.GONE
+
+        val orderStrings = filteredOrders.map { order ->
+            val priorityMarker = OrderPriority.marker(order.priority)
+            val titleLine = if (priorityMarker.isEmpty()) order.title else "$priorityMarker ${order.title}"
+
+            "$titleLine\nОт: ${order.fromAddress} → К: ${order.toAddress}\n" +
+                "Груз: ${order.cargoType}, ${order.weight}кг"
+        }
+
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, orderStrings)
+        ordersListView.adapter = adapter
     }
 
     private fun setActiveTab(activeTab: Button) {
-        // Сбрасываем все вкладки
         val tabs = listOf(tabNew, tabCurrent, tabCompleted, tabArchive, tabAll)
         tabs.forEach { tab ->
             tab.setBackgroundColor(ContextCompat.getColor(this, R.color.grey))
             tab.setTextColor(ContextCompat.getColor(this, R.color.black))
         }
 
-        // Устанавливаем активную вкладку
         activeTab.setBackgroundColor(ContextCompat.getColor(this, R.color.blue))
         activeTab.setTextColor(ContextCompat.getColor(this, R.color.white))
     }
@@ -170,21 +174,23 @@ class OrdersActivity : AppCompatActivity() {
         К: ${order.toAddress}
         Груз: ${order.cargoType}
         Вес: ${order.weight}кг
-        Объем: ${order.volume}м³
+        Объём: ${order.volume}м³
+        Приоритет: ${OrderPriority.label(order.priority)}
         Статус: ${getStatusName(order.status)}
     """.trimIndent()
 
         val builder = AlertDialog.Builder(this)
             .setTitle("Детали заявки")
             .setMessage(message)
-            .setPositiveButton("OK", null)
+            .setPositiveButton("Изменить приоритет") { dialog, _ ->
+                showPriorityDialog(order)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Закрыть", null)
 
-        // Для выполненных заявок добавляем кнопку просмотра этапов
         if (order.status == OrderStatus.COMPLETED) {
             builder.setNeutralButton("Просмотреть этапы") { dialog, _ ->
-                // Создаем Order1C из Order для совместимости с OrderStagesActivity
-                val order1C = convertToOrder1C(order)
-                openOrderStages(order1C)
+                openOrderStages(convertToOrder1C(order))
                 dialog.dismiss()
             }
         }
@@ -204,6 +210,7 @@ class OrdersActivity : AppCompatActivity() {
             weight = order.weight,
             volume = order.volume,
             status = "COMPLETED",
+            priority = order.priority,
             stage1Completed = true,
             stage2Completed = true,
             stage3Completed = true,
@@ -232,57 +239,142 @@ class OrdersActivity : AppCompatActivity() {
     }
 
     private fun loadSampleOrders() {
-        // Временные тестовые данные
-        orders.addAll(listOf(
-            Order("1", "Доставка оборудования", "Срочная доставка серверного оборудования",
-                "ул. Ленина 10", "ул. Пушкина 25", "Оборудование", 150.0, 2.5,
-                OrderStatus.NEW, currentUser?.id ?: ""),
-
-            Order("2", "Перевозка мебели", "Переезд офиса",
-                "пр. Мира 15", "ул. Садовая 8", "Мебель", 300.0, 8.0,
-                OrderStatus.IN_PROGRESS, currentUser?.id ?: "", "driver1"),
-
-            // ВЫПОЛНЕННЫЕ ЗАЯВКИ
-            Order("3", "Доставка документов в офис", "Важные документы для подписания директором",
-                "б-р. Комарова 12", "ул. Гагарина 5", "Документы", 2.0, 0.1,
-                OrderStatus.COMPLETED, currentUser?.id ?: "", "driver2"),
-
-            Order("4", "Перевозка товаров в магазин", "Товары для нового магазина",
-                "склад №1", "ТЦ 'Центральный'", "Товары", 500.0, 15.0,
-                OrderStatus.COMPLETED, currentUser?.id ?: "", "driver3"),
-
-            Order("5", "Доставка строительных материалов", "Материалы для стройки",
-                "ул. Промышленная 8", "ул. Строителей 15", "Строительные материалы", 800.0, 20.0,
-                OrderStatus.COMPLETED, currentUser?.id ?: "", "driver1"),
-
-            Order("6", "Перевозка электроники", "Компьютерная техника для офиса",
-                "ул. Техническая 3", "пр. Ленинградский 25", "Электроника", 200.0, 5.0,
-                OrderStatus.COMPLETED, currentUser?.id ?: "", "driver2"),
-
-            Order("7", "Доставка медицинского оборудования", "Оборудование для больницы",
-                "ул. Медицинская 1", "Городская больница №1", "Медицинское оборудование", 350.0, 8.5,
-                OrderStatus.COMPLETED, currentUser?.id ?: "", "driver3")
-        ))
+        orders.addAll(
+            listOf(
+                Order(
+                    "1",
+                    "Доставка оборудования",
+                    "Срочная доставка серверного оборудования",
+                    "ул. Ленина 10",
+                    "ул. Пушкина 25",
+                    "Оборудование",
+                    150.0,
+                    2.5,
+                    OrderStatus.NEW,
+                    currentUser?.id ?: "",
+                    priority = OrderPriority.HIGH
+                ),
+                Order(
+                    "2",
+                    "Перевозка мебели",
+                    "Переезд офиса",
+                    "пр. Мира 15",
+                    "ул. Садовая 8",
+                    "Мебель",
+                    300.0,
+                    8.0,
+                    OrderStatus.IN_PROGRESS,
+                    currentUser?.id ?: "",
+                    "driver1",
+                    priority = OrderPriority.URGENT
+                ),
+                Order(
+                    "3",
+                    "Доставка документов в офис",
+                    "Важные документы для подписания директором",
+                    "б-р. Комарова 12",
+                    "ул. Гагарина 5",
+                    "Документы",
+                    2.0,
+                    0.1,
+                    OrderStatus.COMPLETED,
+                    currentUser?.id ?: "",
+                    "driver2"
+                ),
+                Order(
+                    "4",
+                    "Перевозка товаров в магазин",
+                    "Товары для нового магазина",
+                    "склад №1",
+                    "ТЦ 'Центральный'",
+                    "Товары",
+                    500.0,
+                    15.0,
+                    OrderStatus.COMPLETED,
+                    currentUser?.id ?: "",
+                    "driver3"
+                ),
+                Order(
+                    "5",
+                    "Доставка строительных материалов",
+                    "Материалы для стройки",
+                    "ул. Промышленная 8",
+                    "ул. Строителей 15",
+                    "Строительные материалы",
+                    800.0,
+                    20.0,
+                    OrderStatus.COMPLETED,
+                    currentUser?.id ?: "",
+                    "driver1"
+                ),
+                Order(
+                    "6",
+                    "Перевозка электроники",
+                    "Компьютерная техника для офиса",
+                    "ул. Техническая 3",
+                    "пр. Ленинградский 25",
+                    "Электроника",
+                    200.0,
+                    5.0,
+                    OrderStatus.COMPLETED,
+                    currentUser?.id ?: "",
+                    "driver2"
+                ),
+                Order(
+                    "7",
+                    "Доставка медицинского оборудования",
+                    "Оборудование для больницы",
+                    "ул. Медицинская 1",
+                    "Городская больница №1",
+                    "Медицинское оборудование",
+                    350.0,
+                    8.5,
+                    OrderStatus.COMPLETED,
+                    currentUser?.id ?: "",
+                    "driver3"
+                )
+            )
+        )
     }
-
-
 
     private fun showMessage(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    // Добавьте этот метод в класс OrdersActivity
+    private fun showPriorityDialog(order: Order) {
+        val priorities = OrderPriority.spinnerItems()
+
+        AlertDialog.Builder(this)
+            .setTitle("Изменить приоритет")
+            .setSingleChoiceItems(priorities, OrderPriority.toSpinnerPosition(order.priority)) { dialog, which ->
+                val updatedOrder = order.copy(
+                    priority = OrderPriority.fromSpinnerPosition(which),
+                    updatedAt = System.currentTimeMillis()
+                )
+                OrderPriorityStore.setPriority(updatedOrder.id, updatedOrder.priority)
+                replaceOrder(updatedOrder)
+                filterOrders(currentFilter)
+                showMessage("Приоритет обновлён: ${OrderPriority.label(updatedOrder.priority)}")
+                dialog.dismiss()
+            }
+            .setNegativeButton("Отмена", null)
+            .show()
+    }
+
+    private fun replaceOrder(updatedOrder: Order) {
+        val orderIndex = orders.indexOfFirst { it.id == updatedOrder.id }
+        if (orderIndex >= 0) {
+            orders[orderIndex] = updatedOrder
+        }
+    }
+
     fun addNewOrder(order: Order) {
         orders.add(order)
-        // Обновляем список согласно текущему фильтру
         filterOrders(currentFilter)
     }
 
-    // Переопределим onResume чтобы обновлять список при возврате из CreateOrderActivity
     override fun onResume() {
         super.onResume()
-        // Можно добавить обновление списка при возврате
-        // filterOrders(currentFilter)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -292,7 +384,7 @@ class OrdersActivity : AppCompatActivity() {
             val newOrder = data.getSerializableExtra("NEW_ORDER") as? Order
             newOrder?.let {
                 orders.add(it)
-                filterOrders(currentFilter) // Обновляем список
+                filterOrders(currentFilter)
                 showMessage("Новая заявка добавлена!")
             }
         }

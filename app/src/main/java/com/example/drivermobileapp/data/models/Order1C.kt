@@ -13,7 +13,7 @@ data class Order1C(
     val weight: Double,
     val volume: Double,
     var status: String = "NEW",
-    val priority: String = "NORMAL",
+    var priority: String = OrderPriority.NORMAL,
 
     // Изменяем на var для полей, которые могут обновляться
     var containerType: String = "",

@@ -3,14 +3,27 @@ package com.example.drivermobileapp.logist
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.*
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.ListView
+import android.widget.ProgressBar
+import android.widget.Spinner
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.drivermobileapp.R
 import com.example.drivermobileapp.data.models.Order1C
+import com.example.drivermobileapp.data.models.OrderPriority
+import com.example.drivermobileapp.data.models.OrderPriorityStore
 import com.example.drivermobileapp.data.models.User
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
 import java.util.Locale
 
 class AllOrdersActivity : AppCompatActivity() {
@@ -33,7 +46,7 @@ class AllOrdersActivity : AppCompatActivity() {
 
     private var isAdvancedSearchVisible = false
     private var currentPageSize = 10
-    private var currentSortType = 0 // 0 - по дате добавления, 1 - по номеру заявки, 2 - по грузоотправителю
+    private var currentSortType = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +58,16 @@ class AllOrdersActivity : AppCompatActivity() {
         setupClickListeners()
         setupSpinners()
         loadAllOrders()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        applyStoredPriorities()
+        applyFilters(
+            if (isAdvancedSearchVisible) etAdvancedSearch.text.toString().trim() else etSearch.text.toString().trim(),
+            if (isAdvancedSearchVisible) currentPageSize else 10,
+            if (isAdvancedSearchVisible) currentSortType else 0
+        )
     }
 
     private fun initViews() {
@@ -59,15 +82,11 @@ class AllOrdersActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.progressBar)
         ordersListView = findViewById(R.id.ordersListView)
         tvEmpty = findViewById(R.id.tvEmpty)
-
-        // Настройка EmptyView
         ordersListView.emptyView = tvEmpty
     }
 
     private fun setupClickListeners() {
-        btnBack.setOnClickListener {
-            finish()
-        }
+        btnBack.setOnClickListener { finish() }
 
         btnSearch.setOnClickListener {
             performSearch(false)
@@ -77,9 +96,8 @@ class AllOrdersActivity : AppCompatActivity() {
             toggleAdvancedSearch()
         }
 
-        // Поиск при нажатии Enter в основном поле
         etSearch.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 performSearch(false)
                 true
             } else {
@@ -87,9 +105,8 @@ class AllOrdersActivity : AppCompatActivity() {
             }
         }
 
-        // Поиск при нажатии Enter в расширенном поле
         etAdvancedSearch.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 performSearch(true)
                 true
             } else {
@@ -97,20 +114,16 @@ class AllOrdersActivity : AppCompatActivity() {
             }
         }
 
-        // Клик по заявке в списке
         ordersListView.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             if (position < filteredOrders.size) {
-                val order = filteredOrders[position]
-                openOrderDetails(order)
+                openOrderDetails(filteredOrders[position])
             }
         }
 
-        // Автопоиск при изменении параметров в расширенном поиске
         spinnerPageSize.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if (isAdvancedSearchVisible) {
                     currentPageSize = when (position) {
-                        0 -> 10
                         1 -> 50
                         2 -> 100
                         else -> 10
@@ -118,7 +131,8 @@ class AllOrdersActivity : AppCompatActivity() {
                     performSearch(true)
                 }
             }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+
+            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
         }
 
         spinnerSort.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -128,24 +142,23 @@ class AllOrdersActivity : AppCompatActivity() {
                     performSearch(true)
                 }
             }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+
+            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
         }
     }
 
     private fun setupSpinners() {
-        // Настройка спиннера для количества элементов
         val pageSizes = arrayOf("10", "50", "100")
         val pageSizeAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, pageSizes)
         pageSizeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerPageSize.adapter = pageSizeAdapter
-        spinnerPageSize.setSelection(0) // По умолчанию 10
+        spinnerPageSize.setSelection(0)
 
-        // Настройка спиннера для сортировки
         val sortOptions = arrayOf("по дате добавления", "по номеру заявки", "по грузоотправителю")
         val sortAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, sortOptions)
         sortAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerSort.adapter = sortAdapter
-        spinnerSort.setSelection(0) // По умолчанию по дате добавления
+        spinnerSort.setSelection(0)
     }
 
     private fun toggleAdvancedSearch() {
@@ -155,7 +168,6 @@ class AllOrdersActivity : AppCompatActivity() {
         } else {
             advancedSearchLayout.visibility = View.VISIBLE
             btnAdvancedSearch.text = "Скрыть расширенный поиск"
-            // Копируем текст из основного поиска
             if (!etSearch.text.isNullOrEmpty()) {
                 etAdvancedSearch.setText(etSearch.text)
             }
@@ -164,23 +176,9 @@ class AllOrdersActivity : AppCompatActivity() {
     }
 
     private fun performSearch(isAdvanced: Boolean) {
-        val searchQuery = if (isAdvanced) {
-            etAdvancedSearch.text.toString().trim()
-        } else {
-            etSearch.text.toString().trim()
-        }
-
-        val pageSize = if (isAdvanced) {
-            currentPageSize
-        } else {
-            10
-        }
-
-        val sortType = if (isAdvanced) {
-            currentSortType
-        } else {
-            0 // по дате добавления по умолчанию
-        }
+        val searchQuery = if (isAdvanced) etAdvancedSearch.text.toString().trim() else etSearch.text.toString().trim()
+        val pageSize = if (isAdvanced) currentPageSize else 10
+        val sortType = if (isAdvanced) currentSortType else 0
 
         hideKeyboard()
         applyFilters(searchQuery, pageSize, sortType)
@@ -192,23 +190,31 @@ class AllOrdersActivity : AppCompatActivity() {
         if (searchQuery.isEmpty()) {
             filteredOrders.addAll(allOrders)
         } else {
-            // Поиск по номеру заявки, грузоотправителю или дате
-            filteredOrders.addAll(allOrders.filter { order ->
-                order.orderNumber.contains(searchQuery, ignoreCase = true) ||
+            filteredOrders.addAll(
+                allOrders.filter { order ->
+                    order.orderNumber.contains(searchQuery, ignoreCase = true) ||
                         order.clientName.contains(searchQuery, ignoreCase = true) ||
                         formatDate(order.orderDate).contains(searchQuery, ignoreCase = true) ||
                         getStatusName(order.status).contains(searchQuery, ignoreCase = true)
-            })
+                }
+            )
         }
 
-        // Применяем сортировку
         when (sortType) {
-            0 -> filteredOrders.sortByDescending { it.orderDate } // по дате добавления (новые сначала)
-            1 -> filteredOrders.sortBy { it.orderNumber } // по номеру заявки
-            2 -> filteredOrders.sortBy { it.clientName } // по грузоотправителю
+            0 -> filteredOrders.sortWith(
+                compareByDescending<Order1C> { OrderPriority.rank(it.priority) }
+                    .thenByDescending { it.orderDate }
+            )
+            1 -> filteredOrders.sortWith(
+                compareByDescending<Order1C> { OrderPriority.rank(it.priority) }
+                    .thenBy { it.orderNumber }
+            )
+            2 -> filteredOrders.sortWith(
+                compareByDescending<Order1C> { OrderPriority.rank(it.priority) }
+                    .thenBy { it.clientName }
+            )
         }
 
-        // Ограничение количества результатов
         if (filteredOrders.size > pageSize) {
             val limitedList = filteredOrders.subList(0, pageSize)
             filteredOrders.clear()
@@ -225,7 +231,7 @@ class AllOrdersActivity : AppCompatActivity() {
         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
             allOrders.clear()
             allOrders.addAll(createAllOrders())
-            applyFilters() // Применяем фильтры по умолчанию
+            applyFilters()
             showLoading(false)
         }, 1000)
     }
@@ -235,18 +241,18 @@ class AllOrdersActivity : AppCompatActivity() {
         val dayInMillis = 24 * 60 * 60 * 1000L
 
         return listOf(
-            // НОВЫЕ ЗАЯВКИ
             Order1C(
                 id = "NEW001",
                 orderNumber = "2024-0001",
-                orderDate = currentTime - 1 * dayInMillis,
+                orderDate = currentTime - dayInMillis,
                 clientName = "ООО 'Ромашка'",
                 fromAddress = "ул. Ленина 10",
                 toAddress = "ул. Пушкина 25",
                 cargoType = "Оборудование",
                 weight = 150.0,
                 volume = 2.5,
-                status = "NEW"
+                status = "NEW",
+                priority = OrderPriority.HIGH
             ),
             Order1C(
                 id = "NEW002",
@@ -258,10 +264,9 @@ class AllOrdersActivity : AppCompatActivity() {
                 cargoType = "Мебель",
                 weight = 300.0,
                 volume = 8.0,
-                status = "NEW"
+                status = "NEW",
+                priority = OrderPriority.URGENT
             ),
-
-            // ТЕКУЩИЕ ЗАЯВКИ
             Order1C(
                 id = "CUR001",
                 orderNumber = "2024-1001",
@@ -274,7 +279,8 @@ class AllOrdersActivity : AppCompatActivity() {
                 volume = 20.0,
                 status = "IN_PROGRESS",
                 stage1Completed = true,
-                stage2Completed = true
+                stage2Completed = true,
+                priority = OrderPriority.URGENT
             ),
             Order1C(
                 id = "CUR002",
@@ -291,8 +297,6 @@ class AllOrdersActivity : AppCompatActivity() {
                 stage2Completed = true,
                 stage3Completed = true
             ),
-
-            // ВЫПОЛНЕННЫЕ ЗАЯВКИ
             Order1C(
                 id = "COMP001",
                 orderNumber = "2024-2001",
@@ -310,7 +314,8 @@ class AllOrdersActivity : AppCompatActivity() {
                 stage4Completed = true,
                 stage5Completed = true,
                 stage6Completed = true,
-                stage7Completed = true
+                stage7Completed = true,
+                priority = OrderPriority.HIGH
             ),
             Order1C(
                 id = "COMP002",
@@ -335,8 +340,7 @@ class AllOrdersActivity : AppCompatActivity() {
     }
 
     private fun formatDate(timestamp: Long): String {
-        val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-        return dateFormat.format(Date(timestamp))
+        return SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(Date(timestamp))
     }
 
     private fun getStatusName(status: String): String {
@@ -351,11 +355,11 @@ class AllOrdersActivity : AppCompatActivity() {
 
     private fun getStatusIcon(status: String): String {
         return when (status) {
-            "NEW" -> "🆕"
-            "IN_PROGRESS" -> "🔄"
-            "COMPLETED" -> "✅"
-            "ARCHIVED" -> "📁"
-            else -> "📄"
+            "NEW" -> "[NEW]"
+            "IN_PROGRESS" -> "[RUN]"
+            "COMPLETED" -> "[OK]"
+            "ARCHIVED" -> "[ARC]"
+            else -> "[ORD]"
         }
     }
 
@@ -363,17 +367,21 @@ class AllOrdersActivity : AppCompatActivity() {
         val orderStrings = filteredOrders.map { order ->
             val statusIcon = getStatusIcon(order.status)
             val statusName = getStatusName(order.status)
-            val dateString = formatDate(order.orderDate)
+            val priorityMarker = OrderPriority.marker(order.priority)
+            val firstLine = if (priorityMarker.isEmpty()) {
+                "$statusIcon ${order.orderNumber} - ${order.clientName}"
+            } else {
+                "$priorityMarker $statusIcon ${order.orderNumber} - ${order.clientName}"
+            }
 
-            "$statusIcon ${order.orderNumber} - ${order.clientName}\n" +
-                    "📦 ${order.cargoType}, ${order.weight} брутто(нетто)\n" +
-                    "📅 $dateString • ${statusName}"
+            "$firstLine\n" +
+                "Груз: ${order.cargoType}, ${order.weight} брутто(нетто)\n" +
+                "Дата: ${formatDate(order.orderDate)} • ${statusName} • ${OrderPriority.label(order.priority)}"
         }
 
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, orderStrings)
         ordersListView.adapter = adapter
 
-        // Обновляем текст пустого списка
         tvEmpty.text = if (etSearch.text.isNotEmpty() || etAdvancedSearch.text.isNotEmpty()) {
             "По вашему запросу ничего не найдено"
         } else {
@@ -389,7 +397,7 @@ class AllOrdersActivity : AppCompatActivity() {
     }
 
     private fun hideKeyboard() {
-        val imm = getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(etSearch.windowToken, 0)
         imm.hideSoftInputFromWindow(etAdvancedSearch.windowToken, 0)
     }
@@ -403,13 +411,44 @@ class AllOrdersActivity : AppCompatActivity() {
                 }
                 startActivity(intent)
             }
+
             "IN_PROGRESS" -> {
-                val intent = Intent(this, OrderStagesActivity::class.java).apply {
-                    putExtra("ORDER_DATA", order)
-                    putExtra("USER_DATA", currentUser)
-                }
-                startActivity(intent)
+                val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
+                val message = """
+                    Заявка: ${order.orderNumber}
+                    Клиент: ${order.clientName}
+                    Груз: ${order.cargoType}, ${order.weight} брутто(нетто)
+                    Дата подачи: ${dateFormat.format(Date(order.orderDate))}
+                    Приоритет: ${OrderPriority.label(order.priority)}
+                    Статус: ${getStatusName(order.status)}
+                """.trimIndent()
+
+                AlertDialog.Builder(this)
+                    .setTitle("Текущая заявка")
+                    .setMessage(message)
+                    .setPositiveButton("Этапы") { dialog, _ ->
+                        val intent = Intent(this, OrderStagesActivity::class.java).apply {
+                            putExtra("ORDER_DATA", order)
+                            putExtra("USER_DATA", currentUser)
+                        }
+                        startActivity(intent)
+                        dialog.dismiss()
+                    }
+                    .setNeutralButton("Изменить приоритет") { dialog, _ ->
+                        showPriorityDialog(order)
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton("Подробнее") { dialog, _ ->
+                        val intent = Intent(this, OrderDetailActivity::class.java).apply {
+                            putExtra("ORDER_DATA", order)
+                            putExtra("USER_DATA", currentUser)
+                        }
+                        startActivity(intent)
+                        dialog.dismiss()
+                    }
+                    .show()
             }
+
             else -> {
                 val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
                 val message = """
@@ -417,14 +456,55 @@ class AllOrdersActivity : AppCompatActivity() {
                     Клиент: ${order.clientName}
                     Груз: ${order.cargoType}, ${order.weight} брутто(нетто)
                     Дата подачи: ${dateFormat.format(Date(order.orderDate))}
+                    Приоритет: ${OrderPriority.label(order.priority)}
                     Статус: ${getStatusName(order.status)}
                 """.trimIndent()
 
                 AlertDialog.Builder(this)
                     .setTitle("Детали заявки")
                     .setMessage(message)
-                    .setPositiveButton("OK", null)
+                    .setPositiveButton("Изменить приоритет") { dialog, _ ->
+                        showPriorityDialog(order)
+                        dialog.dismiss()
+                    }
+                    .setNeutralButton("Подробнее") { dialog, _ ->
+                        val intent = Intent(this, OrderDetailActivity::class.java).apply {
+                            putExtra("ORDER_DATA", order)
+                            putExtra("USER_DATA", currentUser)
+                        }
+                        startActivity(intent)
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton("Закрыть", null)
                     .show()
+            }
+        }
+    }
+
+    private fun showPriorityDialog(order: Order1C) {
+        val priorities = OrderPriority.spinnerItems()
+
+        AlertDialog.Builder(this)
+            .setTitle("Изменить приоритет")
+            .setSingleChoiceItems(priorities, OrderPriority.toSpinnerPosition(order.priority)) { dialog, which ->
+                order.priority = OrderPriority.fromSpinnerPosition(which)
+                OrderPriorityStore.setPriority(order.id, order.priority)
+                applyFilters(
+                    if (isAdvancedSearchVisible) etAdvancedSearch.text.toString().trim() else etSearch.text.toString().trim(),
+                    if (isAdvancedSearchVisible) currentPageSize else 10,
+                    if (isAdvancedSearchVisible) currentSortType else 0
+                )
+                Toast.makeText(this, "Приоритет обновлён: ${OrderPriority.label(order.priority)}", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            }
+            .setNegativeButton("Отмена", null)
+            .show()
+    }
+
+    private fun applyStoredPriorities() {
+        allOrders.forEach { order ->
+            OrderPriorityStore.getPriority(order.id)?.let { savedPriority ->
+                order.priority = savedPriority
             }
         }
     }

@@ -10,7 +10,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Заголовок и кнопка назад -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -35,7 +34,6 @@
 
         </LinearLayout>
 
-        <!-- Основная информация -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -70,7 +68,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="8dp">
 
             <TextView
                 android:layout_width="0dp"
@@ -88,7 +86,28 @@
 
         </LinearLayout>
 
-        <!-- Информация о контейнере -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Приоритет:"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvPriority"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Обычный" />
+
+        </LinearLayout>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -125,7 +144,6 @@
 
         </TableLayout>
 
-        <!-- Информация о грузоотправителе -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -157,7 +175,6 @@
 
         </TableLayout>
 
-        <!-- Информация о грузе -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -189,7 +206,6 @@
 
         </TableLayout>
 
-        <!-- Станции -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -216,7 +232,6 @@
 
         </TableLayout>
 
-        <!-- Грузополучатель -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -248,7 +263,6 @@
 
         </TableLayout>
 
-        <!-- Дополнительная информация -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -275,7 +289,13 @@
 
         </TableLayout>
 
-        <!-- Кнопки действий -->
+        <Button
+            android:id="@+id/btnChangePriority"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Изменить приоритет"
+            android:layout_marginBottom="8dp" />
+
         <Button
             android:id="@+id/btnAddTerminal"
             android:layout_width="match_parent"
@@ -290,7 +310,6 @@
             android:text="Выбрать водителя"
             android:layout_marginBottom="8dp" />
 
-        <!-- Статус водителя -->
         <TextView
             android:id="@+id/tvDriverStatus"
             android:layout_width="match_parent"
@@ -302,7 +321,6 @@
             android:padding="8dp"
             android:background="#f0f0f0" />
 
-        <!-- Кнопка отправки -->
         <Button
             android:id="@+id/btnSendOrder"
             android:layout_width="match_parent"
@@ -311,7 +329,6 @@
             android:layout_marginBottom="16dp"
             style="?attr/materialButtonOutlinedStyle" />
 
-        <!-- Прогресс бар -->
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"

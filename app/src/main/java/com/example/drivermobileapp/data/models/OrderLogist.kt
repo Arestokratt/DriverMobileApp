@@ -22,5 +22,6 @@ data class Order(
     val createdBy: String, // ID логиста, создавшего заявку
     val assignedDriver: String? = null, // ID водителя, если назначен
     val createdAt: Long = System.currentTimeMillis(),
-    val updatedAt: Long = System.currentTimeMillis()
+    val updatedAt: Long = System.currentTimeMillis(),
+    val priority: String = OrderPriority.NORMAL
 ) : Serializable

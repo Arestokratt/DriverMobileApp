@@ -8,11 +8,13 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.drivermobileapp.R
 import com.example.drivermobileapp.data.models.Order1C
+import com.example.drivermobileapp.data.models.OrderPriority
 import com.example.drivermobileapp.data.models.User
 import java.text.SimpleDateFormat
 import java.util.*
 import android.os.Handler
 import com.example.drivermobileapp.data.models.CargoIssueStage
+import com.example.drivermobileapp.data.models.OrderPriorityStore
 import com.example.drivermobileapp.data.models.StationStage
 import com.example.drivermobileapp.data.models.TerminalStage
 import com.example.drivermobileapp.data.models.WarehouseStage
@@ -46,6 +48,16 @@ class CurrentOrdersActivity : AppCompatActivity() {
         setupSpinners()
         setupClickListeners()
         loadCurrentOrders()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        applyStoredPriorities()
+        applyFilters(
+            if (isAdvancedSearchVisible) etAdvancedSearch.text.toString().trim() else etSearch.text.toString().trim(),
+            if (isAdvancedSearchVisible) spinnerPageSize.selectedItem.toString().toInt() else 10,
+            if (isAdvancedSearchVisible) spinnerSort.selectedItemPosition else 0
+        )
     }
 
     private fun initViews() {
@@ -124,7 +136,10 @@ class CurrentOrdersActivity : AppCompatActivity() {
         ordersListView.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             if (position < filteredOrders.size) {
                 val order = filteredOrders[position]
-                showOrderDetails(order)
+                val intent = Intent(this, OrderDetailActivity::class.java)
+                intent.putExtra("ORDER_DATA", order)
+                intent.putExtra("USER_DATA", currentUser)
+                startActivity(intent)
             }
         }
 
@@ -208,6 +223,21 @@ class CurrentOrdersActivity : AppCompatActivity() {
         }
 
         // Ограничение количества результатов
+        when (sortType) {
+            0 -> filteredOrders.sortWith(
+                compareByDescending<Order1C> { OrderPriority.rank(it.priority) }
+                    .thenByDescending { it.orderDate }
+            )
+            1 -> filteredOrders.sortWith(
+                compareByDescending<Order1C> { OrderPriority.rank(it.priority) }
+                    .thenBy { it.orderNumber }
+            )
+            2 -> filteredOrders.sortWith(
+                compareByDescending<Order1C> { OrderPriority.rank(it.priority) }
+                    .thenBy { it.clientName }
+            )
+        }
+
         if (filteredOrders.size > pageSize) {
             val limitedList = filteredOrders.subList(0, pageSize)
             filteredOrders.clear()
@@ -582,5 +612,13 @@ class CurrentOrdersActivity : AppCompatActivity() {
 
     private fun showMessage(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun applyStoredPriorities() {
+        allOrders.forEach { order ->
+            OrderPriorityStore.getPriority(order.id)?.let { savedPriority ->
+                order.priority = savedPriority
+            }
+        }
     }
 }

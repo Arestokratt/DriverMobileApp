@@ -12,7 +12,6 @@
         android:orientation="vertical"
         android:background="@android:color/white">
 
-        <!-- Заголовок и кнопка назад -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -38,7 +37,6 @@
 
         </LinearLayout>
 
-        <!-- Основная информация -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -65,7 +63,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="8dp"
             android:hint="Дата подачи заявки">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -76,7 +74,20 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Информация о контейнере -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="Приоритет">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPriority"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -152,7 +163,6 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Грузоотправитель -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -204,7 +214,6 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Информация о грузе -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -266,7 +275,6 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Станции -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -304,7 +312,6 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Грузополучатель -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -356,7 +363,6 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Терминалы -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -394,7 +400,6 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Примечание -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -419,7 +424,6 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Действия -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -432,28 +436,44 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:layout_marginBottom="16dp">
 
             <Button
-                android:id="@+id/btnPhotos"
-                android:layout_width="0dp"
+                android:id="@+id/btnChangePriority"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Фото"
-                android:layout_marginEnd="8dp"
-                android:backgroundTint="@color/design_default_color_primary"
+                android:text="Изменить приоритет"
+                android:layout_marginBottom="8dp"
+                android:backgroundTint="@color/design_default_color_secondary"
                 android:textColor="@android:color/white" />
 
-            <Button
-                android:id="@+id/btnDocuments"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Документы"
-                android:layout_marginStart="8dp"
-                android:backgroundTint="@color/design_default_color_primary"
-                android:textColor="@android:color/white" />
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnPhotos"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Фото"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="@color/design_default_color_primary"
+                    android:textColor="@android:color/white" />
+
+                <Button
+                    android:id="@+id/btnDocuments"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Документы"
+                    android:layout_marginStart="8dp"
+                    android:backgroundTint="@color/design_default_color_primary"
+                    android:textColor="@android:color/white" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
