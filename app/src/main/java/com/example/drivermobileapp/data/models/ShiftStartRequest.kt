@@ -1,8 +1,8 @@
 package com.example.drivermobileapp.data.models
 
 data class ShiftStartRequest(
-    val userId: Int,
-    val carBrand: String,
-    val licensePlate: String,
+    val userId: String,
+    val driverLicense: String,   // ← ВУ
+    val licensePlate: String,    // ← Гос. номер
     val startTime: Long
 )

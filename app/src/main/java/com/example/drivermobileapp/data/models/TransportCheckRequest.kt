@@ -1,6 +1,6 @@
 package com.example.drivermobileapp.data.models
 
 data class TransportCheckRequest(
-    val licensePlate: String,
-    val carBrand: String
+    val driverLicense: String,  // ← ВУ
+    val licensePlate: String     // ← Гос. номер
 )
