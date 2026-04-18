@@ -51,10 +51,10 @@
         <activity android:name=".admin.AdminActivity" />
         <activity android:name=".admin.UserManagementActivity" />
 
-        <activity android:name=".driver.DriverActivity" />
+        <activity android:name=".driver.DriverCheck.DriverActivity" />
         <activity
             android:name=".driver.OrdersListActivity"
-            android:parentActivityName=".driver.DriverActivity" />
+            android:parentActivityName=".driver.DriverCheck.DriverActivity" />
         <activity
             android:name=".driver.OrderDetailActivity"
             android:parentActivityName=".driver.OrdersListActivity" />

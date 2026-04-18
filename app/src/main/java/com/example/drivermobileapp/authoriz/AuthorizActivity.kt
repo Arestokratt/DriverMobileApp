@@ -13,7 +13,7 @@ import com.example.drivermobileapp.data.models.User
 import com.example.drivermobileapp.data.models.UserRole
 import com.example.drivermobileapp.admin.AdminActivity
 import com.example.drivermobileapp.logist.LogistActivity
-import com.example.drivermobileapp.driver.DriverActivity
+import com.example.drivermobileapp.driver.DriverCheck.DriverActivity
 import com.example.drivermobileapp.data.api.RetrofitClient
 import com.example.drivermobileapp.data.api.LoginRequest
 import com.google.android.material.textfield.TextInputEditText
