@@ -1,5 +1,9 @@
 package com.example.drivermobileapp.data.api
 
+import com.example.drivermobileapp.data.models.ShiftStartRequest
+import com.example.drivermobileapp.data.models.ShiftStartResponse
+import com.example.drivermobileapp.data.models.TransportCheckRequest
+import com.example.drivermobileapp.data.models.TransportCheckResponse
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
@@ -12,6 +16,12 @@ interface AuthApi {
 
     @GET("/users")
     suspend fun getAllUsers(): List<UserResponse>
+
+    @POST("/api/shift/check-transport")
+    suspend fun checkTransport(@Body request: TransportCheckRequest): TransportCheckResponse
+
+    @POST("/api/shift/start")
+    suspend fun startShift(@Body request: ShiftStartRequest): ShiftStartResponse
 }
 
 object RetrofitClient {
