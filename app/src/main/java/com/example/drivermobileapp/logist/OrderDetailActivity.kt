@@ -3,27 +3,32 @@ package com.example.drivermobileapp.logist
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.widget.*
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ProgressBar
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.drivermobileapp.R
 import com.example.drivermobileapp.data.models.Order1C
-import com.example.drivermobileapp.data.models.OrderStage
+import com.example.drivermobileapp.data.models.OrderPriority
+import com.example.drivermobileapp.data.models.OrderPriorityStore
 import com.example.drivermobileapp.data.models.User
 import java.text.SimpleDateFormat
-import java.util.*
-import android.os.Handler
+import java.util.Date
+import java.util.Locale
 import java.util.Random
-
 
 class OrderDetailActivity : AppCompatActivity() {
 
     private lateinit var btnBack: Button
+    private lateinit var btnChangePriority: Button
     private lateinit var btnAddTerminal: Button
     private lateinit var btnAssignDriver: Button
     private lateinit var btnSendOrder: Button
     private lateinit var tvOrderNumber: TextView
     private lateinit var tvOrderDate: TextView
+    private lateinit var tvPriority: TextView
     private lateinit var tvContainerType: TextView
     private lateinit var tvContainerCount: TextView
     private lateinit var tvContainerDateTime: TextView
@@ -54,6 +59,11 @@ class OrderDetailActivity : AppCompatActivity() {
 
         currentOrder = intent.getSerializableExtra("ORDER_DATA") as? Order1C
         currentUser = intent.getSerializableExtra("USER_DATA") as? User
+        currentOrder = currentOrder?.let { order ->
+            OrderPriorityStore.getPriority(order.id)?.let { savedPriority ->
+                order.copy(priority = savedPriority)
+            } ?: order
+        }
 
         initViews()
         setupClickListeners()
@@ -62,13 +72,14 @@ class OrderDetailActivity : AppCompatActivity() {
 
     private fun initViews() {
         btnBack = findViewById(R.id.btnBack)
+        btnChangePriority = findViewById(R.id.btnChangePriority)
         btnAddTerminal = findViewById(R.id.btnAddTerminal)
         btnAssignDriver = findViewById(R.id.btnAssignDriver)
         btnSendOrder = findViewById(R.id.btnSendOrder)
 
-        // Инициализация всех TextViews
         tvOrderNumber = findViewById(R.id.tvOrderNumber)
         tvOrderDate = findViewById(R.id.tvOrderDate)
+        tvPriority = findViewById(R.id.tvPriority)
         tvContainerType = findViewById(R.id.tvContainerType)
         tvContainerCount = findViewById(R.id.tvContainerCount)
         tvContainerDateTime = findViewById(R.id.tvContainerDateTime)
@@ -91,8 +102,10 @@ class OrderDetailActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        btnBack.setOnClickListener {
-            finish() // Возврат к списку новых заявок
+        btnBack.setOnClickListener { finish() }
+
+        btnChangePriority.setOnClickListener {
+            showPriorityDialog()
         }
 
         btnAddTerminal.setOnClickListener {
@@ -115,14 +128,17 @@ class OrderDetailActivity : AppCompatActivity() {
     private fun displayOrderDetails() {
         currentOrder?.let { order ->
             val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
-            val containerDateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
 
             tvOrderNumber.text = order.orderNumber
             tvOrderDate.text = dateFormat.format(Date(order.orderDate))
+            tvPriority.text = OrderPriority.label(order.priority)
             tvContainerType.text = order.containerType.ifEmpty { "Не указано" }
             tvContainerCount.text = if (order.containerCount > 0) order.containerCount.toString() else "Не указано"
-            tvContainerDateTime.text = if (order.containerDeliveryDateTime > 0)
-                containerDateFormat.format(Date(order.containerDeliveryDateTime)) else "Не указано"
+            tvContainerDateTime.text = if (order.containerDeliveryDateTime > 0) {
+                dateFormat.format(Date(order.containerDeliveryDateTime))
+            } else {
+                "Не указано"
+            }
             tvContainerAddress.text = order.containerDeliveryAddress.ifEmpty { "Не указано" }
             tvLoadingContact.text = order.loadingContactPerson.ifEmpty { "Не указано" }
             tvClientName.text = order.clientLegalName.ifEmpty { order.clientName }
@@ -142,6 +158,24 @@ class OrderDetailActivity : AppCompatActivity() {
         }
     }
 
+    private fun showPriorityDialog() {
+        val order = currentOrder ?: return
+        val priorities = OrderPriority.spinnerItems()
+
+        AlertDialog.Builder(this)
+            .setTitle("Изменить приоритет")
+            .setSingleChoiceItems(priorities, OrderPriority.toSpinnerPosition(order.priority)) { dialog, which ->
+                val updatedPriority = OrderPriority.fromSpinnerPosition(which)
+                currentOrder = order.copy(priority = updatedPriority)
+                OrderPriorityStore.setPriority(order.id, updatedPriority)
+                tvPriority.text = OrderPriority.label(currentOrder?.priority ?: OrderPriority.NORMAL)
+                showMessage("Приоритет обновлён")
+                dialog.dismiss()
+            }
+            .setNegativeButton("Отмена", null)
+            .show()
+    }
+
     private fun showAddTerminalDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_terminal, null)
         val etTerminal = dialogView.findViewById<EditText>(R.id.etTerminal)
@@ -152,7 +186,6 @@ class OrderDetailActivity : AppCompatActivity() {
             .setPositiveButton("Сохранить") { dialog, _ ->
                 val terminalName = etTerminal.text.toString().trim()
                 if (terminalName.isNotEmpty()) {
-                    // Обновляем заявку
                     currentOrder = currentOrder?.copy(emptyContainerTerminal = terminalName)
                     tvTerminal.text = terminalName
                     showMessage("Терминал добавлен")
@@ -168,11 +201,9 @@ class OrderDetailActivity : AppCompatActivity() {
     private fun showDriverSelectionDialog() {
         showLoading(true)
 
-        // Имитация загрузки списка водителей
         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
             showLoading(false)
 
-            // Временный список водителей (в реальном приложении из базы)
             val drivers = listOf(
                 Driver("driver1", "Петров Петр", "5 км", "10 мин"),
                 Driver("driver2", "Иванов Иван", "8 км", "15 мин"),
@@ -191,38 +222,28 @@ class OrderDetailActivity : AppCompatActivity() {
                 }
                 .setNegativeButton("Отмена", null)
                 .show()
-
         }, 1000)
     }
 
     private fun sendOrderToDriver() {
         showLoading(true)
 
-        // Имитация отправки заявки водителю
         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
             showLoading(false)
-
-            // Случайный результат принятия/отклонения для демонстрации
             val isAccepted = Random().nextBoolean()
 
             if (isAccepted) {
-                // Водитель принял заявку
                 currentOrder = currentOrder?.copy(
                     assignedDriverId = selectedDriverId,
                     status = "IN_PROGRESS"
                 )
-                tvDriverStatus.text = "✅ Принято водителем"
-                showMessage("Заявка принята водителем!")
-
-                // TODO: Переместить заявку в "Текущие"
-
+                tvDriverStatus.text = "Принято водителем"
+                showMessage("Заявка принята водителем")
             } else {
-                // Водитель отклонил заявку
-                tvDriverStatus.text = "❌ Отклонено водителем"
+                tvDriverStatus.text = "Отклонено водителем"
                 showMessage("Водитель отклонил заявку. Выберите другого водителя.")
                 selectedDriverId = null
             }
-
         }, 2000)
     }
 
@@ -230,24 +251,23 @@ class OrderDetailActivity : AppCompatActivity() {
         when (currentOrder?.assignedDriverId) {
             null -> tvDriverStatus.text = "Водитель не назначен"
             else -> {
-                if (currentOrder?.status == "IN_PROGRESS") {
-                    tvDriverStatus.text = "✅ Принято водителем"
+                tvDriverStatus.text = if (currentOrder?.status == "IN_PROGRESS") {
+                    "Принято водителем"
                 } else {
-                    tvDriverStatus.text = "Водитель назначен (ожидание)"
+                    "Водитель назначен (ожидание)"
                 }
             }
         }
     }
 
     private fun showLoading(show: Boolean) {
-        progressBar.visibility = if (show) View.VISIBLE else View.GONE
+        progressBar.visibility = if (show) android.view.View.VISIBLE else android.view.View.GONE
     }
 
     private fun showMessage(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    // Временный класс водителя для демонстрации
     data class Driver(
         val id: String,
         val name: String,

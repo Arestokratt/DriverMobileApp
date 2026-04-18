@@ -1,26 +1,32 @@
 package com.example.drivermobileapp.logist
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
-import android.widget.*
+import android.widget.Button
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import com.example.drivermobileapp.R
 import com.example.drivermobileapp.data.models.Order1C
+import com.example.drivermobileapp.data.models.OrderPriority
+import com.example.drivermobileapp.data.models.OrderPriorityStore
 import com.example.drivermobileapp.data.models.User
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class CompletedOrderDetailActivity : AppCompatActivity() {
 
     private lateinit var btnBack: Button
+    private lateinit var btnChangePriority: Button
     private lateinit var btnPhotos: Button
     private lateinit var btnDocuments: Button
 
-    // Все поля для отображения
     private lateinit var etOrderNumber: EditText
     private lateinit var etOrderDate: EditText
+    private lateinit var etPriority: EditText
     private lateinit var etContainerType: EditText
     private lateinit var etContainerCount: EditText
     private lateinit var etContainerDeliveryDateTime: EditText
@@ -49,6 +55,11 @@ class CompletedOrderDetailActivity : AppCompatActivity() {
 
         currentOrder = intent.getSerializableExtra("ORDER_DATA") as? Order1C
         currentUser = intent.getSerializableExtra("USER_DATA") as? User
+        currentOrder = currentOrder?.let { order ->
+            OrderPriorityStore.getPriority(order.id)?.let { savedPriority ->
+                order.copy(priority = savedPriority)
+            } ?: order
+        }
 
         initViews()
         setupClickListeners()
@@ -58,12 +69,13 @@ class CompletedOrderDetailActivity : AppCompatActivity() {
 
     private fun initViews() {
         btnBack = findViewById(R.id.btnBack)
+        btnChangePriority = findViewById(R.id.btnChangePriority)
         btnPhotos = findViewById(R.id.btnPhotos)
         btnDocuments = findViewById(R.id.btnDocuments)
 
-        // Инициализация всех полей
         etOrderNumber = findViewById(R.id.etOrderNumber)
         etOrderDate = findViewById(R.id.etOrderDate)
+        etPriority = findViewById(R.id.etPriority)
         etContainerType = findViewById(R.id.etContainerType)
         etContainerCount = findViewById(R.id.etContainerCount)
         etContainerDeliveryDateTime = findViewById(R.id.etContainerDeliveryDateTime)
@@ -85,8 +97,10 @@ class CompletedOrderDetailActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        btnBack.setOnClickListener {
-            finish() // Возврат к списку выполненных заявок
+        btnBack.setOnClickListener { finish() }
+
+        btnChangePriority.setOnClickListener {
+            showPriorityDialog()
         }
 
         btnPhotos.setOnClickListener {
@@ -100,24 +114,22 @@ class CompletedOrderDetailActivity : AppCompatActivity() {
 
     private fun displayOrderData() {
         currentOrder?.let { order ->
-            // Обновляем заголовок
             title = "Заявка №${order.orderNumber}"
 
             val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
-            val dateTimeFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
 
-            // Заполняем все поля данными из заявки
             etOrderNumber.setText(order.orderNumber)
             etOrderDate.setText(dateFormat.format(Date(order.orderDate)))
+            etPriority.setText(OrderPriority.label(order.priority))
             etContainerType.setText(order.containerType.ifEmpty { "Не указано" })
             etContainerCount.setText(if (order.containerCount > 0) order.containerCount.toString() else "Не указано")
-
-            if (order.containerDeliveryDateTime > 0) {
-                etContainerDeliveryDateTime.setText(dateTimeFormat.format(Date(order.containerDeliveryDateTime)))
-            } else {
-                etContainerDeliveryDateTime.setText("Не указано")
-            }
-
+            etContainerDeliveryDateTime.setText(
+                if (order.containerDeliveryDateTime > 0) {
+                    dateFormat.format(Date(order.containerDeliveryDateTime))
+                } else {
+                    "Не указано"
+                }
+            )
             etContainerDeliveryAddress.setText(order.containerDeliveryAddress.ifEmpty { "Не указано" })
             etLoadingContactPerson.setText(order.loadingContactPerson.ifEmpty { "Не указано" })
             etClientLegalName.setText(order.clientLegalName.ifEmpty { order.clientName })
@@ -136,15 +148,46 @@ class CompletedOrderDetailActivity : AppCompatActivity() {
         }
     }
 
+    private fun showPriorityDialog() {
+        val order = currentOrder ?: return
+        val priorities = OrderPriority.spinnerItems()
+
+        AlertDialog.Builder(this)
+            .setTitle("Изменить приоритет")
+            .setSingleChoiceItems(priorities, OrderPriority.toSpinnerPosition(order.priority)) { dialog, which ->
+                val updatedPriority = OrderPriority.fromSpinnerPosition(which)
+                currentOrder = order.copy(priority = updatedPriority)
+                OrderPriorityStore.setPriority(order.id, updatedPriority)
+                etPriority.setText(OrderPriority.label(currentOrder?.priority ?: OrderPriority.NORMAL))
+                dialog.dismiss()
+            }
+            .setNegativeButton("Отмена", null)
+            .show()
+    }
+
     private fun disableAllFields() {
-        // Делаем все поля неактивными (только для чтения)
         val allFields = listOf(
-            etOrderNumber, etOrderDate, etContainerType, etContainerCount,
-            etContainerDeliveryDateTime, etContainerDeliveryAddress, etLoadingContactPerson,
-            etClientLegalName, etClientPostalAddress, etCargoName, etCargoPieces,
-            etCargoWeight, etDepartureStation, etDestinationStation, etConsigneeName,
-            etConsigneePostalAddress, etUnloadingContactPerson, etEmptyContainerTerminal,
-            etContainerReturnTerminal, etNotes
+            etOrderNumber,
+            etOrderDate,
+            etPriority,
+            etContainerType,
+            etContainerCount,
+            etContainerDeliveryDateTime,
+            etContainerDeliveryAddress,
+            etLoadingContactPerson,
+            etClientLegalName,
+            etClientPostalAddress,
+            etCargoName,
+            etCargoPieces,
+            etCargoWeight,
+            etDepartureStation,
+            etDestinationStation,
+            etConsigneeName,
+            etConsigneePostalAddress,
+            etUnloadingContactPerson,
+            etEmptyContainerTerminal,
+            etContainerReturnTerminal,
+            etNotes
         )
 
         allFields.forEach { field ->
@@ -160,7 +203,7 @@ class CompletedOrderDetailActivity : AppCompatActivity() {
         val intent = Intent(this, PhotosActivity::class.java).apply {
             putExtra("ORDER_DATA", currentOrder)
             putExtra("USER_DATA", currentUser)
-            putExtra("STAGE_TYPE", "all") // Все фото по заявке
+            putExtra("STAGE_TYPE", "all")
         }
         startActivity(intent)
     }
@@ -169,7 +212,7 @@ class CompletedOrderDetailActivity : AppCompatActivity() {
         val intent = Intent(this, DocumentsActivity::class.java).apply {
             putExtra("ORDER_DATA", currentOrder)
             putExtra("USER_DATA", currentUser)
-            putExtra("STAGE_TYPE", "all") // Все документы по заявке
+            putExtra("STAGE_TYPE", "all")
         }
         startActivity(intent)
     }
