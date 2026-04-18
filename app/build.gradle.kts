@@ -8,6 +8,16 @@ android {
     namespace = "com.example.drivermobileapp"
     compileSdk = 36
 
+    packagingOptions {
+        resources {
+            excludes += "META-INF/INDEX.LIST"
+            // если появятся другие подобные ошибки:
+            excludes += "META-INF/io.netty.versions.properties"
+            excludes += "META-INF/DEPENDENCIES"
+            excludes += "META-INF/LICENSE"
+        }
+    }
+
     defaultConfig {
         applicationId = "com.example.drivermobileapp"
         minSdk = 21
@@ -34,6 +44,7 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
 }
 
 dependencies {
@@ -43,6 +54,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.firebase.appdistribution.gradle)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

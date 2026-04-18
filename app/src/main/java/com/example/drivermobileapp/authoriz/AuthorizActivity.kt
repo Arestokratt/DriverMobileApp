@@ -4,6 +4,7 @@ import com.example.drivermobileapp.R
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
@@ -68,33 +69,41 @@ class AuthActivity : AppCompatActivity() {
     private fun authenticateUser(login: String, password: String) {
         showLoading(true)
 
-        // Запускаем запрос к API в фоновом потоке
+        Log.d("Auth", "Attempting login with: $login / $password")
+
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Отправляем запрос на сервер
                 val response = RetrofitClient.instance.login(LoginRequest(login, password))
 
-                // Переключаемся на главный поток для обновления UI
                 withContext(Dispatchers.Main) {
                     showLoading(false)
+                    Log.d("Auth", "Login successful: ${response.id}")
 
-                    // Создаем объект User из ответа API
                     val user = User(
-                        id = response.id.toString(),
+                        id = response.id,
                         login = response.login,
-                        password = "", // Пароль не возвращается с сервера
+                        password = "",
                         role = enumValueOf<UserRole>(response.role.uppercase()),
                         fullName = response.name,
                         isActive = true
                     )
-
                     navigateToRoleScreen(user)
                 }
-            } catch (e: Exception) {
-                // Ошибка подключения или неверные данные
+            } catch (e: retrofit2.HttpException) {
                 withContext(Dispatchers.Main) {
                     showLoading(false)
-                    showError("Ошибка: ${e.message ?: "Не удалось подключиться к серверу"}")
+                    Log.e("Auth", "HTTP Error: ${e.code()} - ${e.message()}")
+                    when (e.code()) {
+                        401 -> showError("Неверный логин или пароль")
+                        500 -> showError("Ошибка сервера. Попробуйте позже.")
+                        else -> showError("Ошибка: ${e.code()}")
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    showLoading(false)
+                    Log.e("Auth", "Exception: ${e.message}")
+                    showError("Ошибка подключения: ${e.message}")
                 }
             }
         }

@@ -11,7 +11,7 @@ data class LoginRequest(
 
 data class UserResponse(
     @SerializedName("id")
-    val id: Int,
+    val id: String,
     @SerializedName("login")
     val login: String,
     @SerializedName("name")
