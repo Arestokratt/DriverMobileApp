@@ -22,6 +22,12 @@ import kotlinx.coroutines.withContext
 
 class DriverActivity : AppCompatActivity() {
 
+    companion object {
+        private val DRIVER_LICENSE_REGEX = Regex("""^\d{2}\s?[A-ZА-ЯЁ]{2}\s?\d{6}$""")
+        private val LICENSE_PLATE_REGEX =
+            Regex("""^[АВЕКМНОРСТУХA-Z]\d{3}[АВЕКМНОРСТУХA-Z]{2}\d{2,3}$""")
+    }
+
     private lateinit var tvWelcome: TextView
     private lateinit var btnShiftControl: Button
     private lateinit var btnIncomingOrders: Button
@@ -35,7 +41,6 @@ class DriverActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_driver)
 
-        // Инициализируем Repository с нашим API
         shiftRepository = ShiftRepository(RetrofitClient.instance)
 
         initViews()
@@ -98,7 +103,7 @@ class DriverActivity : AppCompatActivity() {
 
     private fun showStartShiftDialog() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_start_shift, null)
-        val etDriverLicense = dialogView.findViewById<TextInputEditText>(R.id.etDriverLicense)  // ← изменено
+        val etDriverLicense = dialogView.findViewById<TextInputEditText>(R.id.etDriverLicense)
         val etLicensePlate = dialogView.findViewById<TextInputEditText>(R.id.etLicensePlate)
         val btnCancel = dialogView.findViewById<Button>(R.id.btnCancelStart)
         val btnConfirm = dialogView.findViewById<Button>(R.id.btnConfirmStart)
@@ -114,20 +119,28 @@ class DriverActivity : AppCompatActivity() {
         }
 
         btnConfirm.setOnClickListener {
-            val driverLicense = etDriverLicense.text?.toString()?.trim() ?: ""  // ← изменено
-            val licensePlate = etLicensePlate.text?.toString()?.trim() ?: ""
+            val driverLicense = normalizeDriverLicense(etDriverLicense.text?.toString())
+            val licensePlate = normalizeLicensePlate(etLicensePlate.text?.toString())
 
-            if (driverLicense.isEmpty() || licensePlate.isEmpty()) {  // ← изменено
+            if (driverLicense.isEmpty() || licensePlate.isEmpty()) {
                 showMessage("Заполните все поля")
                 return@setOnClickListener
             }
+
+            val validationError = validateInput(driverLicense, licensePlate)
+            if (validationError != null) {
+                showMessage(validationError)
+                return@setOnClickListener
+            }
+
+            etDriverLicense.setText(driverLicense)
+            etLicensePlate.setText(licensePlate)
 
             progressBar.visibility = View.VISIBLE
             btnConfirm.isEnabled = false
 
             CoroutineScope(Dispatchers.IO).launch {
-                // Проверяем по ВУ и гос. номеру
-                val result = shiftRepository.checkTransport(driverLicense, licensePlate)  // ← изменено
+                val result = shiftRepository.checkTransport(driverLicense, licensePlate)
 
                 withContext(Dispatchers.Main) {
                     progressBar.visibility = View.GONE
@@ -136,7 +149,7 @@ class DriverActivity : AppCompatActivity() {
                     result.fold(
                         onSuccess = { isValid ->
                             if (isValid) {
-                                startShiftConfirmed(driverLicense, licensePlate, dialog)  // ← изменено
+                                startShiftConfirmed(driverLicense, licensePlate, dialog)
                             }
                         },
                         onFailure = { exception ->
@@ -154,23 +167,21 @@ class DriverActivity : AppCompatActivity() {
         val progressBar = dialog.findViewById<ProgressBar>(R.id.progressBar)!!
         val btnConfirm = dialog.findViewById<Button>(R.id.btnConfirmStart)!!
 
-
         progressBar.visibility = View.VISIBLE
         btnConfirm.isEnabled = false
 
         CoroutineScope(Dispatchers.IO).launch {
-            // Передаем ВУ и гос. номер
-            val result = shiftRepository.startShift(user.id, driverLicense, licensePlate)  // ← изменено
+            val result = shiftRepository.startShift(user.id, driverLicense, licensePlate)
 
             withContext(Dispatchers.Main) {
                 progressBar.visibility = View.GONE
                 btnConfirm.isEnabled = true
 
                 result.fold(
-                    onSuccess = { shiftId ->
+                    onSuccess = { shiftId ->  // ← shiftId теперь String
                         isShiftActive = true
                         updateUIState()
-                        showMessage("Смена начата")
+                        showMessage("Смена начата. ID: $shiftId")
                         dialog.dismiss()
                     },
                     onFailure = { exception ->
@@ -207,5 +218,40 @@ class DriverActivity : AppCompatActivity() {
 
     private fun showMessage(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun validateInput(driverLicense: String, licensePlate: String): String? {
+        if (!DRIVER_LICENSE_REGEX.matches(driverLicense)) {
+            return "Введите ВУ в формате 77 АБ 123456"
+        }
+
+        if (!LICENSE_PLATE_REGEX.matches(licensePlate)) {
+            return "Введите гос. номер в формате А123БВ77"
+        }
+
+        return null
+    }
+
+    private fun normalizeDriverLicense(value: String?): String {
+        val cleaned = value
+            ?.trim()
+            ?.uppercase()
+            ?.replace(Regex("\\s+"), " ")
+            .orEmpty()
+
+        val compact = cleaned.replace(" ", "")
+        if (compact.length != 10) {
+            return cleaned
+        }
+
+        return "${compact.substring(0, 2)} ${compact.substring(2, 4)} ${compact.substring(4)}"
+    }
+
+    private fun normalizeLicensePlate(value: String?): String {
+        return value
+            ?.trim()
+            ?.uppercase()
+            ?.replace(" ", "")
+            .orEmpty()
     }
 }

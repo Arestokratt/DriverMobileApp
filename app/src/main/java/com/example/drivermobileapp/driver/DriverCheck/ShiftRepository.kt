@@ -1,17 +1,19 @@
-package com.example.drivermobileapp.driver.DriverCheck
+package com.example.drivermobileapp.data.repositories
 
 import com.example.drivermobileapp.data.api.AuthApi
-import com.example.drivermobileapp.data.models.TransportCheckRequest
 import com.example.drivermobileapp.data.models.ShiftStartRequest
+import com.example.drivermobileapp.data.models.TransportCheckRequest
 import java.io.IOException
 
 class ShiftRepository(private val api: AuthApi) {
 
-    // Метод для проверки транспорта
-    suspend fun checkTransport(licensePlate: String, carBrand: String): Result<Boolean> {
+    suspend fun checkTransport(driverLicense: String, licensePlate: String): Result<Boolean> {
         return try {
             val response = api.checkTransport(
-                TransportCheckRequest(licensePlate, carBrand)
+                TransportCheckRequest(
+                    driverLicense = driverLicense,
+                    licensePlate = licensePlate
+                )
             )
 
             if (response.isValid) {
@@ -26,21 +28,21 @@ class ShiftRepository(private val api: AuthApi) {
         }
     }
 
-    // Метод для начала смены
-    suspend fun startShift(userId: String, driverLicense: String, licensePlate: String): Result<Int> {
+    suspend fun startShift(userId: String, driverLicense: String, licensePlate: String): Result<String> {
         return try {
             val request = ShiftStartRequest(
                 userId = userId,
-                driverLicense = driverLicense,  // ← изменено
+                driverLicense = driverLicense,
                 licensePlate = licensePlate,
                 startTime = System.currentTimeMillis()
             )
+
             val response = api.startShift(request)
 
             if (response.success) {
-                Result.success(response.shiftId)
+                Result.success(response.shiftId.toString())
             } else {
-                Result.failure(Exception("Не удалось начать смену"))
+                Result.failure(Exception(response.message ?: "Не удалось начать смену"))
             }
         } catch (e: IOException) {
             Result.failure(Exception("Ошибка сети: проверьте подключение"))

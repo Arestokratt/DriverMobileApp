@@ -1,8 +1,14 @@
 package com.example.drivermobileapp.data.models
 
+import com.google.gson.annotations.SerializedName
+
 data class ShiftStartRequest(
+    @SerializedName("userId")
     val userId: String,
-    val driverLicense: String,   // ← ВУ
-    val licensePlate: String,    // ← Гос. номер
+    @SerializedName("driverLicense")
+    val driverLicense: String,
+    @SerializedName("licensePlate")
+    val licensePlate: String,
+    @SerializedName("startTime")
     val startTime: Long
 )
