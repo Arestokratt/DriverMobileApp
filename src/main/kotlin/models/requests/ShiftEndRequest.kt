@@ -1,6 +1,6 @@
 package models.requests
 
 data class ShiftEndRequest(
-    val shiftId: Int,
+    val shiftId: String,
     val endTime: Long? = null
 )

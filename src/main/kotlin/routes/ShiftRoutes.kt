@@ -1,27 +1,32 @@
 package routes
 
-import io.ktor.server.application.*
-import io.ktor.server.response.*
-import io.ktor.server.request.*
-import io.ktor.server.routing.*
-import io.ktor.http.*
-import models.requests.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.call
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import models.requests.ShiftEndRequest
+import models.requests.ShiftStartRequest
+import models.requests.TransportCheckRequest
+import models.responses.ErrorResponse
 import services.ShiftService
 
 fun Route.shiftRoutes() {
     val shiftService = ShiftService()
 
-    // Проверка транспорта
     post("/api/shift/check-transport") {
         val request = call.receive<TransportCheckRequest>()
-        val result = shiftService.checkTransport(request)
-        call.respond(result)
+        call.respond(shiftService.checkTransport(request))
     }
 
-    // Начало смены
     post("/api/shift/start") {
+        println("📍 ROUTE: /api/shift/start CALLED")
         val request = call.receive<ShiftStartRequest>()
+        println("📍 ROUTE: Received request: $request")
         val result = shiftService.startShift(request)
+        println("📍 ROUTE: Result: $result")
 
         if (result.success) {
             call.respond(result)
@@ -30,7 +35,6 @@ fun Route.shiftRoutes() {
         }
     }
 
-    // Завершение смены
     post("/api/shift/end") {
         val request = call.receive<ShiftEndRequest>()
         val result = shiftService.endShift(request)
@@ -42,18 +46,24 @@ fun Route.shiftRoutes() {
         }
     }
 
-    // Получить активную смену
     get("/api/shift/active/{userId}") {
         val userId = call.parameters["userId"]?.toIntOrNull()
-        if (userId != null) {
-            val shift = shiftService.getActiveShift(userId)
-            if (shift != null) {
-                call.respond(shift)
-            } else {
-                call.respond(HttpStatusCode.NotFound, "Активная смена не найдена")
-            }
+        if (userId == null) {
+            call.respond(
+                HttpStatusCode.BadRequest,
+                ErrorResponse("INVALID_USER_ID", "Неверный ID пользователя")
+            )
+            return@get
+        }
+
+        val shift = shiftService.getActiveShift(userId.toString())
+        if (shift != null) {
+            call.respond(shift)
         } else {
-            call.respond(HttpStatusCode.BadRequest, "Неверный ID пользователя")
+            call.respond(
+                HttpStatusCode.NotFound,
+                ErrorResponse("ACTIVE_SHIFT_NOT_FOUND", "Активная смена не найдена")
+            )
         }
     }
 }

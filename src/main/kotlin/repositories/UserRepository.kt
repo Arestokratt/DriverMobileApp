@@ -2,7 +2,6 @@ package repositories
 
 import config.DatabaseConfig
 import models.responses.UserResponse
-import java.sql.PreparedStatement
 
 class UserRepository {
 
