@@ -15,8 +15,6 @@
         android:gravity="center"
         android:layout_marginBottom="32dp" />
 
-
-    <!-- НОВАЯ КНОПКА -->
     <Button
         android:id="@+id/btnViewOrders"
         android:layout_width="match_parent"
@@ -25,16 +23,33 @@
         android:layout_marginBottom="16dp" />
 
     <Button
-        android:id="@+id/btnViewDrivers"
+        android:id="@+id/btnAddDriver"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Просмотр водителей"
+        android:layout_marginBottom="16dp"
+        android:text=" Добавить водителя" />
+
+    <Button
+        android:id="@+id/btnDriversList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=" Список водителей"
         android:layout_marginBottom="16dp" />
 
     <Button
         android:id="@+id/btnAssignOrders"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Назначить заказы" />
+        android:text="Назначить заказы"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btnLogout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Выйти из аккаунта"
+        android:backgroundTint="#D32F2F"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="16dp" />
 
 </LinearLayout>

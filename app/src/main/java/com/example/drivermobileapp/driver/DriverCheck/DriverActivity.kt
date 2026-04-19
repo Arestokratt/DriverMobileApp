@@ -9,7 +9,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import com.example.drivermobileapp.BaseActivity  // ← Изменено
 import com.example.drivermobileapp.R
 import com.example.drivermobileapp.data.api.RetrofitClient
 import com.example.drivermobileapp.data.models.User
@@ -20,12 +20,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class DriverActivity : AppCompatActivity() {
+class DriverActivity : BaseActivity() {  // ← Изменено: AppCompatActivity → BaseActivity
 
     private lateinit var tvWelcome: TextView
     private lateinit var btnShiftControl: Button
     private lateinit var btnIncomingOrders: Button
     private lateinit var btnMyOrders: Button
+    private lateinit var btnLogout: Button  // ← Добавлено
 
     private var isShiftActive = false
     private lateinit var shiftRepository: ShiftRepository
@@ -35,7 +36,6 @@ class DriverActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_driver)
 
-        // Инициализируем Repository с нашим API
         shiftRepository = ShiftRepository(RetrofitClient.instance)
 
         initViews()
@@ -49,6 +49,7 @@ class DriverActivity : AppCompatActivity() {
         btnShiftControl = findViewById(R.id.btnShiftControl)
         btnIncomingOrders = findViewById(R.id.btnIncomingOrders)
         btnMyOrders = findViewById(R.id.btnMyOrders)
+        btnLogout = findViewById(R.id.btnLogout)  // ← Добавлено
     }
 
     private fun setupClickListeners() {
@@ -72,6 +73,11 @@ class DriverActivity : AppCompatActivity() {
                 putExtra("ORDERS_TYPE", "my_orders")
             }
             startActivity(intent)
+        }
+
+        // ← Добавлено: кнопка выхода
+        btnLogout.setOnClickListener {
+            showLogoutDialog()
         }
     }
 
@@ -98,7 +104,7 @@ class DriverActivity : AppCompatActivity() {
 
     private fun showStartShiftDialog() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_start_shift, null)
-        val etDriverLicense = dialogView.findViewById<TextInputEditText>(R.id.etDriverLicense)  // ← изменено
+        val etDriverLicense = dialogView.findViewById<TextInputEditText>(R.id.etDriverLicense)
         val etLicensePlate = dialogView.findViewById<TextInputEditText>(R.id.etLicensePlate)
         val btnCancel = dialogView.findViewById<Button>(R.id.btnCancelStart)
         val btnConfirm = dialogView.findViewById<Button>(R.id.btnConfirmStart)
@@ -114,10 +120,10 @@ class DriverActivity : AppCompatActivity() {
         }
 
         btnConfirm.setOnClickListener {
-            val driverLicense = etDriverLicense.text?.toString()?.trim() ?: ""  // ← изменено
+            val driverLicense = etDriverLicense.text?.toString()?.trim() ?: ""
             val licensePlate = etLicensePlate.text?.toString()?.trim() ?: ""
 
-            if (driverLicense.isEmpty() || licensePlate.isEmpty()) {  // ← изменено
+            if (driverLicense.isEmpty() || licensePlate.isEmpty()) {
                 showMessage("Заполните все поля")
                 return@setOnClickListener
             }
@@ -126,8 +132,7 @@ class DriverActivity : AppCompatActivity() {
             btnConfirm.isEnabled = false
 
             CoroutineScope(Dispatchers.IO).launch {
-                // Проверяем по ВУ и гос. номеру
-                val result = shiftRepository.checkTransport(driverLicense, licensePlate)  // ← изменено
+                val result = shiftRepository.checkTransport(driverLicense, licensePlate)
 
                 withContext(Dispatchers.Main) {
                     progressBar.visibility = View.GONE
@@ -136,7 +141,9 @@ class DriverActivity : AppCompatActivity() {
                     result.fold(
                         onSuccess = { isValid ->
                             if (isValid) {
-                                startShiftConfirmed(driverLicense, licensePlate, dialog)  // ← изменено
+                                startShiftConfirmed(driverLicense, licensePlate, dialog)
+                            } else {
+                                showMessage("Транспорт не найден")
                             }
                         },
                         onFailure = { exception ->
@@ -154,13 +161,11 @@ class DriverActivity : AppCompatActivity() {
         val progressBar = dialog.findViewById<ProgressBar>(R.id.progressBar)!!
         val btnConfirm = dialog.findViewById<Button>(R.id.btnConfirmStart)!!
 
-
         progressBar.visibility = View.VISIBLE
         btnConfirm.isEnabled = false
 
         CoroutineScope(Dispatchers.IO).launch {
-            // Передаем ВУ и гос. номер
-            val result = shiftRepository.startShift(user.id, driverLicense, licensePlate)  // ← изменено
+            val result = shiftRepository.startShift(user.id, driverLicense, licensePlate)
 
             withContext(Dispatchers.Main) {
                 progressBar.visibility = View.GONE

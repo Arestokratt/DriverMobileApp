@@ -110,6 +110,14 @@ class AuthActivity : AppCompatActivity() {
     }
 
     private fun navigateToRoleScreen(user: User) {
+        // 👇 ДОБАВЬ ЭТО - СОХРАНЕНИЕ СЕССИИ
+        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        prefs.edit()
+            .putString("user_role", user.role.name)  // Сохраняем роль
+            .putString("user_id", user.id.toString())  // Сохраняем ID
+            .putString("user_name", user.fullName)  // Сохраняем имя
+            .apply()
+
         val intent = when (user.role) {
             UserRole.ADMIN -> Intent(this, AdminActivity::class.java)
             UserRole.LOGIST -> Intent(this, LogistActivity::class.java)
@@ -128,4 +136,5 @@ class AuthActivity : AppCompatActivity() {
     private fun showError(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
+
 }

@@ -19,3 +19,10 @@ data class UserResponse(
     @SerializedName("role")
     val role: String
 )
+data class DriverResponse(
+    val id: String,
+    val login: String,
+    val name: String,
+    val isActive: Boolean,
+    val driverLicense: String
+)

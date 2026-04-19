@@ -1,20 +1,21 @@
 package com.example.drivermobileapp.logist
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import com.example.drivermobileapp.BaseActivity
 import com.example.drivermobileapp.R
 import com.example.drivermobileapp.data.models.User
 
-class LogistActivity : AppCompatActivity() {
+class LogistActivity : BaseActivity() {
 
     private lateinit var tvWelcome: TextView
-    private lateinit var btnCreateOrder: Button
     private lateinit var btnViewOrders: Button
-    private lateinit var btnViewDrivers: Button
+    private lateinit var btnAddDriver: Button
+    private lateinit var btnDriversList: Button
     private lateinit var btnAssignOrders: Button
+    private lateinit var btnLogout: Button
 
     private var currentUser: User? = null
 
@@ -30,25 +31,26 @@ class LogistActivity : AppCompatActivity() {
 
     private fun initViews() {
         tvWelcome = findViewById(R.id.tvWelcome)
-        btnCreateOrder = findViewById(R.id.btnCreateOrder)
         btnViewOrders = findViewById(R.id.btnViewOrders)
-        btnViewDrivers = findViewById(R.id.btnViewDrivers)
+        btnAddDriver = findViewById(R.id.btnAddDriver)
+        btnDriversList = findViewById(R.id.btnDriversList)
         btnAssignOrders = findViewById(R.id.btnAssignOrders)
+        btnLogout = findViewById(R.id.btnLogout)
     }
 
     private fun setupClickListeners() {
-//        btnCreateOrder.setOnClickListener {
-//            showMessage("Создание заявки - в разработке")
-//        }
-
-        // НОВАЯ КНОПКА - переход к заявкам
         btnViewOrders.setOnClickListener {
             val intent = Intent(this, OrdersActivity::class.java)
             intent.putExtra("USER_DATA", currentUser)
             startActivity(intent)
         }
 
-        btnViewDrivers.setOnClickListener {
+        btnAddDriver.setOnClickListener {
+            val intent = Intent(this, AddDriverActivity::class.java)
+            startActivity(intent)
+        }
+
+        btnDriversList.setOnClickListener {
             val intent = Intent(this, DriversListActivity::class.java)
             intent.putExtra("USER_DATA", currentUser)
             startActivity(intent)
@@ -56,6 +58,10 @@ class LogistActivity : AppCompatActivity() {
 
         btnAssignOrders.setOnClickListener {
             showMessage("Назначение заказов")
+        }
+
+        btnLogout.setOnClickListener {
+            showLogoutDialog()
         }
     }
 
