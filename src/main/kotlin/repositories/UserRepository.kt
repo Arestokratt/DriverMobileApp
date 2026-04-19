@@ -21,7 +21,7 @@ class UserRepository {
 
                 if (rs.next()) {
                     UserResponse(
-                        id = rs.getInt("id"),
+                        id = rs.getString("id"),
                         login = rs.getString("login"),
                         name = rs.getString("name"),
                         role = rs.getString("role")
@@ -42,7 +42,7 @@ class UserRepository {
                 while (rs.next()) {
                     users.add(
                         UserResponse(
-                            id = rs.getInt("id"),
+                            id = rs.getString("id"),
                             login = rs.getString("login"),
                             name = rs.getString("name"),
                             role = rs.getString("role")
@@ -64,7 +64,7 @@ class UserRepository {
 
                 if (rs.next()) {
                     UserResponse(
-                        id = rs.getInt("id"),
+                        id = rs.getString("id"),
                         login = rs.getString("login"),
                         name = rs.getString("name"),
                         role = rs.getString("role")
