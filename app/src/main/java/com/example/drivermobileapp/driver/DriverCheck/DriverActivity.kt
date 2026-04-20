@@ -13,6 +13,7 @@ import com.example.drivermobileapp.BaseActivity  // ← Изменено
 import com.example.drivermobileapp.R
 import com.example.drivermobileapp.data.api.RetrofitClient
 import com.example.drivermobileapp.data.models.User
+import com.example.drivermobileapp.data.repositories.ShiftRepository
 import com.example.drivermobileapp.driver.OrdersListActivity
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.CoroutineScope
