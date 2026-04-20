@@ -6,17 +6,23 @@ import repositories.Driver
 import repositories.CreateUserRequest
 import repositories.CreateDriverRequest
 import models.responses.UserResponse
+import repositories.UserRepository
 
 class UserService {
     private val userRepository = UserRepository()
     private val driverRepository = DriverRepository()
 
-    // Аутентификация
     fun authenticate(login: String, password: String): UserResponse? {
-        return userRepository.authenticate(login, password)
+        val normalizedLogin = login.trim()
+        val normalizedPassword = password.trim()
+
+        if (normalizedLogin.isBlank() || normalizedPassword.isBlank()) {
+            return null
+        }
+
+        return userRepository.authenticate(normalizedLogin, normalizedPassword)
     }
 
-    // Получить всех пользователей
     fun getAllUsers(): List<UserResponse> {
         return userRepository.getAllUsers()
     }

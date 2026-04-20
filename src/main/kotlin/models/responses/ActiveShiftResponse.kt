@@ -1,7 +1,7 @@
 package models.responses
 
 data class ActiveShiftResponse(
-    val shiftId: Int,
+    val shiftId: String,
     val driverLicense: String,
     val licensePlate: String,
     val startTime: Long,

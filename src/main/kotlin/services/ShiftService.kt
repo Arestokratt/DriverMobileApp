@@ -1,66 +1,87 @@
 package services
 
+import models.requests.ShiftEndRequest
+import models.requests.ShiftStartRequest
+import models.requests.TransportCheckRequest
+import models.responses.ActiveShiftResponse
+import models.responses.ShiftEndResponse
+import models.responses.ShiftStartResponse
+import models.responses.TransportCheckResponse
 import repositories.ShiftRepository
-import models.requests.*
-import models.responses.*
 
 class ShiftService {
     private val shiftRepository = ShiftRepository()
 
     fun checkTransport(request: TransportCheckRequest): TransportCheckResponse {
-        // Валидация входных данных
-        if (request.driverLicense.isBlank() || request.licensePlate.isBlank()) {
+        val driverLicense = request.driverLicense.trim()
+        val licensePlate = request.licensePlate.trim()
+
+        if (driverLicense.isBlank() || licensePlate.isBlank()) {
             return TransportCheckResponse(
                 isValid = false,
                 message = "Заполните все поля"
             )
         }
 
-        return shiftRepository.checkTransport(request.driverLicense, request.licensePlate)
+        return shiftRepository.checkTransport(driverLicense, licensePlate)
     }
 
     fun startShift(request: ShiftStartRequest): ShiftStartResponse {
-        // Валидация
-        if (request.userId <= 0) {
-            return ShiftStartResponse(-1, false, "Неверный ID пользователя")
-        }
-        if (request.driverLicense.isBlank() || request.licensePlate.isBlank()) {
-            return ShiftStartResponse(-1, false, "Заполните все поля")
+        println("🚀 SERVICE: startShift called")
+        println("   Request: $request")
+
+        val userId = request.userId  // Теперь это String (UUID)
+        val driverLicense = request.driverLicense.trim()
+        val licensePlate = request.licensePlate.trim()
+
+        if (userId.isBlank()) {
+            return ShiftStartResponse("-1", false, "Неверный ID пользователя")
         }
 
-        // Проверяем, нет ли активной смены
-        if (shiftRepository.hasActiveShift(request.userId)) {
-            return ShiftStartResponse(-1, false, "У вас уже есть активная смена")
+        if (driverLicense.isBlank() || licensePlate.isBlank()) {
+            return ShiftStartResponse("-1", false, "Заполните все поля")
         }
 
-        // Проверяем транспорт
-        val vehicleCheck = shiftRepository.checkTransport(request.driverLicense, request.licensePlate)
+        if (request.startTime <= 0L) {
+            return ShiftStartResponse("-1", false, "Неверное время начала смены")
+        }
+
+        // Проверка активной смены (нужно изменить метод)
+        if (shiftRepository.hasActiveShift(userId)) {
+            return ShiftStartResponse("-1", false, "У вас уже есть активная смена")
+        }
+
+        val vehicleCheck = shiftRepository.checkTransport(driverLicense, licensePlate)
         if (!vehicleCheck.isValid) {
-            return ShiftStartResponse(-1, false, vehicleCheck.message)
+            return ShiftStartResponse("-1", false, vehicleCheck.message)
         }
 
-        // Начинаем смену
         val shiftId = shiftRepository.startShift(
-            request.userId,
-            request.driverLicense,
-            request.licensePlate,
-            request.startTime
+            userId = userId,  // Передаем UUID как строку
+            driverLicense = driverLicense,
+            licensePlate = licensePlate,
+            startTime = request.startTime
         )
 
-        return if (shiftId > 0) {
+        return if (shiftId != "-1") {
             ShiftStartResponse(shiftId, true, "Смена успешно начата")
         } else {
-            ShiftStartResponse(-1, false, "Не удалось создать смену")
+            ShiftStartResponse("-1", false, "Не удалось создать смену")
         }
     }
 
     fun endShift(request: ShiftEndRequest): ShiftEndResponse {
-        if (request.shiftId <= 0) {
+        val shiftId = request.shiftId.toIntOrNull()
+        if (shiftId == null || shiftId <= 0) {
             return ShiftEndResponse(false, "Неверный ID смены")
         }
 
         val endTime = request.endTime ?: System.currentTimeMillis()
-        val success = shiftRepository.endShift(request.shiftId, endTime)
+        if (endTime <= 0L) {
+            return ShiftEndResponse(false, "Неверное время завершения смены")
+        }
+
+        val success = shiftRepository.endShift(shiftId.toString(), endTime)
 
         return if (success) {
             ShiftEndResponse(true, "Смена успешно завершена")
@@ -69,8 +90,10 @@ class ShiftService {
         }
     }
 
-    fun getActiveShift(userId: Int): ActiveShiftResponse? {
-        if (userId <= 0) return null
-        return shiftRepository.getActiveShiftByUserId(userId)
+    fun getActiveShift(userId: String): ActiveShiftResponse? {
+        val parsedUserId = userId.toIntOrNull() ?: return null
+        if (parsedUserId <= 0) return null
+
+        return shiftRepository.getActiveShiftByUserId(parsedUserId.toString())
     }
 }

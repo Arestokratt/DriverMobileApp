@@ -14,7 +14,6 @@ data class CreateUserRequest(
 
 class UserRepository {
 
-    // Аутентификация пользователя
     fun authenticate(login: String, password: String): UserResponse? {
         val query = """
             SELECT id, login, name, role 
@@ -40,7 +39,6 @@ class UserRepository {
         }
     }
 
-    // Получить всех пользователей
     fun getAllUsers(): List<UserResponse> {
         val query = "SELECT id, login, name, role FROM users"
 
