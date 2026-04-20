@@ -88,7 +88,7 @@ fun Route.userRoutes() {
     }
 
     get("/api/users/{id}") {
-        val id = call.parameters["id"]?.toIntOrNull()
+        val id = call.parameters["id"]
         if (id == null) {
             call.respond(
                 HttpStatusCode.BadRequest,

@@ -1,6 +1,5 @@
 package services
 
-import repositories.UserRepository
 import repositories.DriverRepository
 import repositories.Driver
 import repositories.CreateUserRequest
