@@ -24,7 +24,7 @@ import kotlinx.coroutines.withContext
 class DriverActivity : BaseActivity() {  // ← Изменено: AppCompatActivity → BaseActivity
 
     companion object {
-        private val DRIVER_LICENSE_REGEX = Regex("""^\d{2}\s?[A-ZА-ЯЁ]{2}\s?\d{6}$""")
+        private val DRIVER_LICENSE_REGEX = Regex("""^\d{10}$|^\d{2}\s\d{2}\s\d{6}$""")
         private val LICENSE_PLATE_REGEX =
             Regex("""^[АВЕКМНОРСТУХA-Z]\d{3}[АВЕКМНОРСТУХA-Z]{2}\d{2,3}$""")
     }
@@ -112,7 +112,7 @@ class DriverActivity : BaseActivity() {  // ← Изменено: AppCompatActiv
 
     private fun showStartShiftDialog() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_start_shift, null)
-        val etDriverLicense = dialogView.findViewById<TextInputEditText>(R.id.etDriverLicense)  // ← изменено
+        val etDriverLicense = dialogView.findViewById<TextInputEditText>(R.id.etDriverLicense)
         val etLicensePlate = dialogView.findViewById<TextInputEditText>(R.id.etLicensePlate)
         val btnCancel = dialogView.findViewById<Button>(R.id.btnCancelStart)
         val btnConfirm = dialogView.findViewById<Button>(R.id.btnConfirmStart)
@@ -128,10 +128,13 @@ class DriverActivity : BaseActivity() {  // ← Изменено: AppCompatActiv
         }
 
         btnConfirm.setOnClickListener {
-            val driverLicense = etDriverLicense.text?.toString()?.trim() ?: ""  // ← изменено
-            val licensePlate = etLicensePlate.text?.toString()?.trim() ?: ""
+            var driverLicense = etDriverLicense.text?.toString()?.trim() ?: ""
+            val licensePlate = etLicensePlate.text?.toString()?.trim()?.uppercase() ?: ""
 
-            if (driverLicense.isEmpty() || licensePlate.isEmpty()) {  // ← изменено
+            // Очищаем от пробелов для проверки
+            driverLicense = driverLicense.replace("\\s".toRegex(), "")
+
+            if (driverLicense.isEmpty() || licensePlate.isEmpty()) {
                 showMessage("Заполните все поля")
                 return@setOnClickListener
             }
@@ -142,15 +145,17 @@ class DriverActivity : BaseActivity() {  // ← Изменено: AppCompatActiv
                 return@setOnClickListener
             }
 
-            etDriverLicense.setText(driverLicense)
+            // Нормализуем для отображения
+            val normalizedLicense = normalizeDriverLicense(driverLicense)
+            etDriverLicense.setText(normalizedLicense)
             etLicensePlate.setText(licensePlate)
 
             progressBar.visibility = View.VISIBLE
             btnConfirm.isEnabled = false
 
             CoroutineScope(Dispatchers.IO).launch {
-                // Проверяем по ВУ и гос. номеру
-                val result = shiftRepository.checkTransport(driverLicense, licensePlate)  // ← изменено
+                // Проверяем по очищенному ВУ и гос. номеру
+                val result = shiftRepository.checkTransport(driverLicense, licensePlate)
 
                 withContext(Dispatchers.Main) {
                     progressBar.visibility = View.GONE
@@ -235,12 +240,19 @@ class DriverActivity : BaseActivity() {  // ← Изменено: AppCompatActiv
     }
 
     private fun validateInput(driverLicense: String, licensePlate: String): String? {
-        if (!DRIVER_LICENSE_REGEX.matches(driverLicense)) {
-            return "Введите ВУ в формате 77 АБ 123456"
+        // Очищаем от пробелов для проверки
+        val cleanLicense = driverLicense.replace("\\s".toRegex(), "")
+
+        if (cleanLicense.length != 10) {
+            return "ВУ должно содержать 10 цифр (пример: 99 34 126970 или 9934126970)"
         }
 
-        if (!LICENSE_PLATE_REGEX.matches(licensePlate)) {
-            return "Введите гос. номер в формате А123БВ77"
+        if (!cleanLicense.all { it.isDigit() }) {
+            return "Номер ВУ может содержать только цифры"
+        }
+
+        if (!LICENSE_PLATE_REGEX.matches(licensePlate.uppercase())) {
+            return "Гос. номер должен быть в формате: А123БВ77 или А123БВ777"
         }
 
         return null
@@ -249,16 +261,15 @@ class DriverActivity : BaseActivity() {  // ← Изменено: AppCompatActiv
     private fun normalizeDriverLicense(value: String?): String {
         val cleaned = value
             ?.trim()
-            ?.uppercase()
-            ?.replace(Regex("\\s+"), " ")
+            ?.replace("\\s".toRegex(), "")
             .orEmpty()
 
-        val compact = cleaned.replace(" ", "")
-        if (compact.length != 10) {
-            return cleaned
+        // Если 10 цифр, форматируем как "99 34 126970" (2-2-6)
+        return if (cleaned.length == 10 && cleaned.all { it.isDigit() }) {
+            "${cleaned.substring(0, 2)} ${cleaned.substring(2, 4)} ${cleaned.substring(4)}"
+        } else {
+            cleaned
         }
-
-        return "${compact.substring(0, 2)} ${compact.substring(2, 4)} ${compact.substring(4)}"
     }
 
     private fun normalizeLicensePlate(value: String?): String {
