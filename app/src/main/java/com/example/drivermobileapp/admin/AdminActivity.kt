@@ -7,7 +7,6 @@ import android.widget.Button
 import android.widget.TextView
 import com.example.drivermobileapp.R
 import com.example.drivermobileapp.data.models.User
-import com.google.android.material.snackbar.Snackbar
 
 class AdminActivity : AppCompatActivity() {
 
@@ -25,10 +24,6 @@ class AdminActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-        val user = intent.getSerializableExtra("USER_DATA") as? User
-        user?.let {
-            Snackbar.make(findViewById<android.view.View>(android.R.id.content), "Hello ${it.fullName}", Snackbar.LENGTH_LONG).show()
-        }
         tvWelcome = findViewById(R.id.tvWelcome)
         btnManageUsers = findViewById(R.id.btnManageUsers)
         btnChangePasswords = findViewById(R.id.btnChangePasswords)
