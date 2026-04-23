@@ -14,6 +14,7 @@ import com.example.drivermobileapp.R
 import com.example.drivermobileapp.data.api.RetrofitClient
 import com.example.drivermobileapp.data.models.User
 import com.example.drivermobileapp.driver.OrdersListActivity
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +46,11 @@ class DriverActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
+        val user = intent.getSerializableExtra("USER_DATA") as? User
+        user?.let {
+            val rootView = findViewById<android.view.View>(android.R.id.content)
+            Snackbar.make(rootView, "Hello ${it.fullName}", Snackbar.LENGTH_LONG).show()
+        }
         tvWelcome = findViewById(R.id.tvWelcome)
         btnShiftControl = findViewById(R.id.btnShiftControl)
         btnIncomingOrders = findViewById(R.id.btnIncomingOrders)
