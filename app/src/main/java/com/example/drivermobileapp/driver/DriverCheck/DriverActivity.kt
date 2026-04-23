@@ -24,7 +24,7 @@ import kotlinx.coroutines.withContext
 class DriverActivity : BaseActivity() {  // ← Изменено: AppCompatActivity → BaseActivity
 
     companion object {
-        private val DRIVER_LICENSE_REGEX = Regex("""^\d{10}$|^\d{2}\s\d{2}\s\d{6}$""")
+        // Удаляем DRIVER_LICENSE_REGEX, так как он не используется
         private val LICENSE_PLATE_REGEX =
             Regex("""^[АВЕКМНОРСТУХA-Z]\d{3}[АВЕКМНОРСТУХA-Z]{2}\d{2,3}$""")
     }
