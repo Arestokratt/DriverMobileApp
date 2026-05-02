@@ -91,7 +91,7 @@ class Stage2DetailActivity : AppCompatActivity() {
 
     private fun populateFormData() {
         currentOrder?.let { order ->
-            tvStageTitle.text = "Этап №2. Терминал вывоза №${order.number}"
+            tvStageTitle.text = "Этап №2: Получение документов №${order.number}"
             etTerminalAddress.setText(order.terminalPickupAddress ?: "Адрес не указан")
 
             // Заполняем временные метки если они есть

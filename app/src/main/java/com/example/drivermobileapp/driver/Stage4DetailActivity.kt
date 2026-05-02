@@ -80,7 +80,7 @@ class Stage4DetailActivity : AppCompatActivity() {
 
     private fun populateFormData() {
         currentOrder?.let { order ->
-            tvStageTitle.text = "Этап №4. Станция отправления №${order.number}"
+            tvStageTitle.text = "Этап №4: Станция отправления №${order.number}"
             etStationName.setText(order.departureStation ?: "Станция не указана")
             etStationContact.setText(order.departureContact ?: "Контакт не указан")
 

@@ -75,7 +75,7 @@ class Stage1DetailActivity : AppCompatActivity() {
 
     private fun populateFormData() {
         currentOrder?.let { order ->
-            tvStageTitle.text = "Этап №1. Заявка №${order.number}"
+            tvStageTitle.text = "Этап №1: Заявка №${order.number}"
 
             // Заполняем поля данными из заявки
             etTerminalPickupAddress.setText(order.terminalPickupAddress ?: "")
