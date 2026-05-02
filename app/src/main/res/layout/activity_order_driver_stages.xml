@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Этап 1: Заявка -->
+            <!-- Этап 1: Заявка (информация) -->
             <LinearLayout
                 android:id="@+id/stage1Layout"
                 android:layout_width="match_parent"
@@ -56,10 +56,11 @@
                 android:focusable="true">
 
                 <TextView
+                    android:id="@+id/tvStage1Title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Этап №1. Заявка"
+                    android:text="Этап №1: Заявка"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -72,7 +73,7 @@
 
             </LinearLayout>
 
-            <!-- Этап 2: Терминал вывоза -->
+            <!-- Этап 2: Получение документов -->
             <LinearLayout
                 android:id="@+id/stage2Layout"
                 android:layout_width="match_parent"
@@ -85,10 +86,11 @@
                 android:focusable="true">
 
                 <TextView
+                    android:id="@+id/tvStage2Title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Этап №2. Терминал вывоза"
+                    android:text="Этап №2: Получение документов"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -101,7 +103,7 @@
 
             </LinearLayout>
 
-            <!-- Этап 3: Склад -->
+            <!-- Этап 3: Забор груза со склада -->
             <LinearLayout
                 android:id="@+id/stage3Layout"
                 android:layout_width="match_parent"
@@ -114,10 +116,11 @@
                 android:focusable="true">
 
                 <TextView
+                    android:id="@+id/tvStage3Title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Этап №3. Склад"
+                    android:text="Этап №3: Получение груза"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -130,7 +133,7 @@
 
             </LinearLayout>
 
-            <!-- Этап 4: Станция отправления -->
+            <!-- Этап 4: Доставка груза -->
             <LinearLayout
                 android:id="@+id/stage4Layout"
                 android:layout_width="match_parent"
@@ -143,10 +146,11 @@
                 android:focusable="true">
 
                 <TextView
+                    android:id="@+id/tvStage4Title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Этап №4. Станция отправления"
+                    android:text="Этап №4: Станция отправления"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -159,7 +163,7 @@
 
             </LinearLayout>
 
-            <!-- Этап 5: Станция назначения -->
+            <!-- Этап 5: Станция назначения (скрыт для водителя) -->
             <LinearLayout
                 android:id="@+id/stage5Layout"
                 android:layout_width="match_parent"
@@ -169,13 +173,15 @@
                 android:padding="16dp"
                 android:layout_marginBottom="8dp"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                android:visibility="gone">
 
                 <TextView
+                    android:id="@+id/tvStage5Title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Этап №5. Станция назначения"
+                    android:text="5. Станция назначения"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -188,7 +194,7 @@
 
             </LinearLayout>
 
-            <!-- Этап 6: Выдача груза -->
+            <!-- Этап 6: Выдача груза (скрыт для водителя) -->
             <LinearLayout
                 android:id="@+id/stage6Layout"
                 android:layout_width="match_parent"
@@ -198,13 +204,15 @@
                 android:padding="16dp"
                 android:layout_marginBottom="8dp"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                android:visibility="gone">
 
                 <TextView
+                    android:id="@+id/tvStage6Title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Этап №6. Выдача груза"
+                    android:text="6. Выдача груза"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -217,7 +225,7 @@
 
             </LinearLayout>
 
-            <!-- Этап 7: Терминал сдачи -->
+            <!-- Этап 7: Терминал сдачи (скрыт для водителя) -->
             <LinearLayout
                 android:id="@+id/stage7Layout"
                 android:layout_width="match_parent"
@@ -227,13 +235,15 @@
                 android:padding="16dp"
                 android:layout_marginBottom="8dp"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                android:visibility="gone">
 
                 <TextView
+                    android:id="@+id/tvStage7Title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Этап №7. Терминал сдачи"
+                    android:text="7. Терминал сдачи"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
