@@ -78,16 +78,19 @@ class OrderStagesActivity : AppCompatActivity() {
 
     private fun setupClickListeners() {
         btnBack.setOnClickListener {
-            finish() // Возврат к списку "Мои заявки"
+            finish()
         }
 
+        // Обработка кликов только для первых 4 этапов
         stage1Layout.setOnClickListener { onStageClick(1) }
         stage2Layout.setOnClickListener { onStageClick(2) }
         stage3Layout.setOnClickListener { onStageClick(3) }
         stage4Layout.setOnClickListener { onStageClick(4) }
-        stage5Layout.setOnClickListener { onStageClick(5) }
-        stage6Layout.setOnClickListener { onStageClick(6) }
-        stage7Layout.setOnClickListener { onStageClick(7) }
+
+        // Остальные этапы не должны быть кликабельны, но на всякий случай уберем слушатели
+        stage5Layout.setOnClickListener(null)
+        stage6Layout.setOnClickListener(null)
+        stage7Layout.setOnClickListener(null)
     }
 
     private fun displayOrderInfo() {
@@ -98,23 +101,26 @@ class OrderStagesActivity : AppCompatActivity() {
 
     private fun setupStagesVisibility() {
         currentOrder?.let { order ->
-            // ПОКАЗЫВАЕМ ВСЕ ЭТАПЫ ВСЕГДА
+            // Скрываем ВСЕ этапы сначала
+            stage1Layout.visibility = View.GONE
+            stage2Layout.visibility = View.GONE
+            stage3Layout.visibility = View.GONE
+            stage4Layout.visibility = View.GONE
+            stage5Layout.visibility = View.GONE
+            stage6Layout.visibility = View.GONE
+            stage7Layout.visibility = View.GONE
+
+            // Показываем ТОЛЬКО первые 4 этапа
             stage1Layout.visibility = View.VISIBLE
             stage2Layout.visibility = View.VISIBLE
             stage3Layout.visibility = View.VISIBLE
             stage4Layout.visibility = View.VISIBLE
-            stage5Layout.visibility = View.VISIBLE
-            stage6Layout.visibility = View.VISIBLE
-            stage7Layout.visibility = View.VISIBLE
 
-            // Обновляем статусы всех этапов
+            // Обновляем статусы только для первых 4 этапов
             updateStageStatus(1, order.stages.stage1.isCompleted, stage1Status)
             updateStageStatus(2, order.stages.stage2.isCompleted, stage2Status)
             updateStageStatus(3, order.stages.stage3.isCompleted, stage3Status)
             updateStageStatus(4, order.stages.stage4.isCompleted, stage4Status)
-            updateStageStatus(5, order.stages.stage5.isCompleted, stage5Status)
-            updateStageStatus(6, order.stages.stage6.isCompleted, stage6Status)
-            updateStageStatus(7, order.stages.stage7.isCompleted, stage7Status)
         }
     }
 
