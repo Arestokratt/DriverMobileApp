@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import android.content.Intent
 import com.example.drivermobileapp.R
 import com.google.android.material.textfield.TextInputEditText
 import java.text.SimpleDateFormat
@@ -33,16 +34,22 @@ class Stage1DetailActivity : AppCompatActivity() {
     private lateinit var etTerminalReturnAddress: TextInputEditText
 
     private var currentOrder: OrderDriver? = null
+    private var stageNumber: Int = 1
+    private var isCurrentStage: Boolean = false
+    private var hasBeenViewed: Boolean = false // Флаг, что заявка была просмотрена
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_stage1_detail)
 
         currentOrder = intent.getSerializableExtra("ORDER") as? OrderDriver
+        stageNumber = intent.getIntExtra("STAGE_NUMBER", 1)
+        isCurrentStage = intent.getBooleanExtra("IS_CURRENT_STAGE", false)
 
         initViews()
         setupClickListeners()
         populateFormData()
+        disableAllFields()
     }
 
     private fun initViews() {
@@ -69,7 +76,22 @@ class Stage1DetailActivity : AppCompatActivity() {
 
     private fun setupClickListeners() {
         btnBack.setOnClickListener {
-            finish() // Возврат к этапам заявки
+            // Перед выходом проверяем, нужно ли завершить этап
+            completeStageIfNeeded()
+            finish()
+        }
+    }
+
+    private fun completeStageIfNeeded() {
+        // Если это текущий активный этап и еще не был завершен
+        if (isCurrentStage && !hasBeenViewed) {
+            hasBeenViewed = true
+
+            val resultIntent = Intent().apply {
+                putExtra("STAGE_COMPLETED", true)
+                putExtra("STAGE_NUMBER", stageNumber)
+            }
+            setResult(RESULT_OK, resultIntent)
         }
     }
 
@@ -77,12 +99,10 @@ class Stage1DetailActivity : AppCompatActivity() {
         currentOrder?.let { order ->
             tvStageTitle.text = "Этап №1: Заявка №${order.number}"
 
-            // Заполняем поля данными из заявки
             etTerminalPickupAddress.setText(order.terminalPickupAddress ?: "")
             etContainerType.setText(order.containerType ?: "")
             etContainerCount.setText(order.containerCount?.toString() ?: "")
 
-            // Форматируем дату и время
             val deliveryTimeFormatted = order.containerDeliveryTime?.let { time ->
                 SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(time)
             } ?: ""
@@ -99,6 +119,22 @@ class Stage1DetailActivity : AppCompatActivity() {
             etUnloadingAddress.setText(order.unloadingAddress ?: "")
             etUnloadingContact.setText(order.unloadingContact ?: "")
             etTerminalReturnAddress.setText(order.terminalReturnAddress ?: "")
+        }
+    }
+
+    private fun disableAllFields() {
+        val allFields = listOf(
+            etTerminalPickupAddress, etContainerType, etContainerCount,
+            etContainerDeliveryTime, etLoadingAddress, etCargoName,
+            etCargoWeight, etLoadingContact, etDepartureStation,
+            etDepartureContact, etDestinationStation, etDestinationContact,
+            etUnloadingAddress, etUnloadingContact, etTerminalReturnAddress
+        )
+
+        allFields.forEach { field ->
+            field.isEnabled = false
+            field.isFocusable = false
+            field.isClickable = false
         }
     }
 }

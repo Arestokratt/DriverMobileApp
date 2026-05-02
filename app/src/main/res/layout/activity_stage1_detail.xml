@@ -25,6 +25,8 @@
                 android:text="← Назад"
                 android:layout_marginEnd="16dp" />
 
+
+
             <TextView
                 android:id="@+id/tvStageTitle"
                 android:layout_width="0dp"
