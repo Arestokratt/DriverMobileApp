@@ -2,8 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Разрешения для работы с интернетом -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- НОВЫЕ РАЗРЕШЕНИЯ для камеры и файлов -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- Для Android 13+ (API 33) нужны более точные разрешения -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
 
     <application
         android:allowBackup="true"
@@ -15,15 +25,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DriverMobileApp"
         android:usesCleartextTraffic="true">
-        <activity
-            android:name=".authoriz.AuthActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
 
+        <!-- НОВЫЙ: FileProvider для камеры -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- ========== LOGIST ========== -->
         <activity android:name=".logist.NewOrdersActivity" />
         <activity android:name=".logist.OrdersActivity" />
         <activity android:name=".logist.CreateOrderActivity" />
@@ -47,29 +61,50 @@
         <activity android:name=".logist.DriverDetailActivity" />
         <activity android:name=".logist.DriverShiftsActivity" />
         <activity android:name=".logist.ChatActivity" />
+        <activity android:name=".logist.AddDriverActivity" />
 
+        <!-- ========== ADMIN ========== -->
         <activity android:name=".admin.AdminActivity" />
         <activity android:name=".admin.UserManagementActivity" />
 
-        <activity android:name=".driver.DriverCheck.DriverActivity" />
+        <!-- ========== DRIVER ========== -->
+        <activity
+            android:name=".authoriz.AuthActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".driver.DriverCheck.DriverActivity"
+            android:parentActivityName=".authoriz.AuthActivity" />
+
         <activity
             android:name=".driver.OrdersListActivity"
             android:parentActivityName=".driver.DriverCheck.DriverActivity" />
+
         <activity
             android:name=".driver.OrderDetailActivity"
             android:parentActivityName=".driver.OrdersListActivity" />
+
         <activity
             android:name=".driver.OrderStagesActivity"
             android:parentActivityName=".driver.OrdersListActivity" />
+
         <activity
             android:name=".driver.StageDetailActivity"
             android:parentActivityName=".driver.OrderStagesActivity" />
+
         <activity
             android:name=".driver.Stage1DetailActivity"
             android:parentActivityName=".driver.OrderStagesActivity" />
+
         <activity
             android:name=".driver.Stage2DetailActivity"
             android:parentActivityName=".driver.OrderStagesActivity" />
+
         <activity
             android:name=".driver.PhotosActivity"
             android:parentActivityName=".driver.Stage2DetailActivity" />
@@ -77,23 +112,26 @@
         <activity
             android:name=".driver.DocumentsActivity"
             android:parentActivityName=".driver.Stage2DetailActivity" />
+
         <activity
             android:name=".driver.Stage3DetailActivity"
             android:parentActivityName=".driver.OrderStagesActivity" />
+
         <activity
             android:name=".driver.Stage4DetailActivity"
             android:parentActivityName=".driver.OrderStagesActivity" />
+
         <activity
             android:name=".driver.Stage5DetailActivity"
             android:parentActivityName=".driver.OrderStagesActivity" />
+
         <activity
             android:name=".driver.Stage6DetailActivity"
             android:parentActivityName=".driver.OrderStagesActivity" />
+
         <activity
             android:name=".driver.Stage7DetailActivity"
             android:parentActivityName=".driver.OrderStagesActivity" />
-        <activity android:name=".logist.AddDriverActivity" />
-
 
     </application>
 

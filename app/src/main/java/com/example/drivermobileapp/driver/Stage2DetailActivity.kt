@@ -1,16 +1,16 @@
 package com.example.drivermobileapp.driver
 
 import OrderDriver
+import android.app.AlertDialog
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
-import android.widget.TextView
+import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.example.drivermobileapp.R
 import com.google.android.material.textfield.TextInputEditText
 import java.text.SimpleDateFormat
-import androidx.core.content.ContextCompat
-import java.util.Locale
+import java.util.*
 
 class Stage2DetailActivity : AppCompatActivity() {
 
@@ -30,6 +30,9 @@ class Stage2DetailActivity : AppCompatActivity() {
     private var currentOrder: OrderDriver? = null
     private val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault())
 
+    private val MIN_PHOTOS = 2
+    private val MIN_DOCUMENTS = 2
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_stage2_detail)
@@ -40,6 +43,12 @@ class Stage2DetailActivity : AppCompatActivity() {
         setupClickListeners()
         populateFormData()
         updateUIState()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateCounters()
+        updateDepartureButtonState()
     }
 
     private fun initViews() {
@@ -58,34 +67,76 @@ class Stage2DetailActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        btnBack.setOnClickListener {
-            finish() // Возврат к этапам заявки
-        }
+        btnBack.setOnClickListener { finish() }
 
-        btnArrived.setOnClickListener {
-            recordArrivalTime()
-        }
+        btnArrived.setOnClickListener { recordArrivalTime() }
 
-        btnDeparted.setOnClickListener {
-            recordDepartureTime()
-        }
+        btnDeparted.setOnClickListener { checkBeforeDeparture() }
 
         btnPhotos.setOnClickListener {
-            // Переход к активности фотографий
             val intent = Intent(this, PhotosActivity::class.java).apply {
                 putExtra("ORDER", currentOrder)
-                putExtra("PHOTO_TYPE", "terminal") // Тип фото для терминала
+                putExtra("STAGE_NUMBER", 2)
+                putExtra("PHOTO_LIST_KEY", "containerPhotos")
             }
             startActivity(intent)
         }
 
         btnDocuments.setOnClickListener {
-            // Переход к активности документов
             val intent = Intent(this, DocumentsActivity::class.java).apply {
                 putExtra("ORDER", currentOrder)
-                putExtra("DOCUMENT_TYPE", "terminal") // Тип документов для терминала
+                putExtra("STAGE_NUMBER", 2)
+                putExtra("DOCUMENT_LIST_KEY", "terminalDocuments")
             }
             startActivity(intent)
+        }
+    }
+
+    private fun checkBeforeDeparture() {
+        currentOrder?.let { order ->
+            val photosCount = order.stages.stage2.containerPhotos.size
+            val documentsCount = order.stages.stage2.terminalDocuments.size
+
+            val missingPhotos = MIN_PHOTOS - photosCount
+            val missingDocs = MIN_DOCUMENTS - documentsCount
+
+            when {
+                photosCount < MIN_PHOTOS && documentsCount < MIN_DOCUMENTS -> {
+                    showError("Необходимо загрузить:\n📷 Фото: еще $missingPhotos (нужно $MIN_PHOTOS)\n📄 Документы: еще $missingDocs (нужно $MIN_DOCUMENTS)")
+                }
+                photosCount < MIN_PHOTOS -> {
+                    showError("Необходимо загрузить еще $missingPhotos фото контейнера. Нужно минимум $MIN_PHOTOS")
+                }
+                documentsCount < MIN_DOCUMENTS -> {
+                    showError("Необходимо загрузить еще $missingDocs документов терминала. Нужно минимум $MIN_DOCUMENTS")
+                }
+                else -> {
+                    recordDepartureTime()
+                }
+            }
+        }
+    }
+
+    private fun updateDepartureButtonState() {
+        currentOrder?.let { order ->
+            val stage = order.stages.stage2
+            val photosCount = stage.containerPhotos.size
+            val documentsCount = stage.terminalDocuments.size
+
+            val hasRequired = photosCount >= MIN_PHOTOS && documentsCount >= MIN_DOCUMENTS
+            val canDepart = stage.arrivalTime != null && stage.departureTime == null
+
+            if (canDepart) {
+                if (hasRequired) {
+                    btnDeparted.text = "✅ Уехал (завершить этап)"
+                    btnDeparted.isEnabled = true
+                    btnDeparted.alpha = 1f
+                } else {
+                    btnDeparted.text = "⏳ Фото: $photosCount/$MIN_PHOTOS Доки: $documentsCount/$MIN_DOCUMENTS"
+                    btnDeparted.isEnabled = false
+                    btnDeparted.alpha = 0.6f
+                }
+            }
         }
     }
 
@@ -94,16 +145,12 @@ class Stage2DetailActivity : AppCompatActivity() {
             tvStageTitle.text = "Этап №2. Терминал вывоза №${order.number}"
             etTerminalAddress.setText(order.terminalPickupAddress ?: "Адрес не указан")
 
-            // Заполняем временные метки если они есть
             order.stages.stage2.arrivalTime?.let { time ->
                 etArrivalTime.setText(dateFormat.format(time))
             }
-
             order.stages.stage2.departureTime?.let { time ->
                 etDepartureTime.setText(dateFormat.format(time))
             }
-
-            // Обновляем счетчики
             updateCounters()
         }
     }
@@ -112,11 +159,13 @@ class Stage2DetailActivity : AppCompatActivity() {
         currentOrder?.let { order ->
             val stage = order.stages.stage2
 
-            // Блокируем кнопки в зависимости от состояния
             btnArrived.isEnabled = stage.arrivalTime == null
-            btnDeparted.isEnabled = stage.arrivalTime != null && stage.departureTime == null
 
-            // Обновляем статус этапа
+            if (stage.departureTime != null) {
+                btnDeparted.isEnabled = false
+                btnDeparted.text = "✅ Завершено"
+            }
+
             when {
                 stage.departureTime != null -> {
                     tvStageStatus.text = "Статус: ✅ Завершено"
@@ -127,7 +176,7 @@ class Stage2DetailActivity : AppCompatActivity() {
                     tvStageStatus.setBackgroundColor(ContextCompat.getColor(this, R.color.orange_light))
                 }
                 else -> {
-                    tvStageStatus.text = "Статус: ⏳ В процессе"
+                    tvStageStatus.text = "Статус: ⏳ Ожидание прибытия"
                     tvStageStatus.setBackgroundColor(ContextCompat.getColor(this, R.color.blue_light))
                 }
             }
@@ -136,41 +185,50 @@ class Stage2DetailActivity : AppCompatActivity() {
 
     private fun recordArrivalTime() {
         currentOrder?.let { order ->
-            val arrivalTime = System.currentTimeMillis()
-
-            // TODO: Сохранить arrivalTime в базу данных/на сервер
-            // orderRepository.updateStage2ArrivalTime(order.id, arrivalTime)
-
-            // Обновляем UI
-            etArrivalTime.setText(dateFormat.format(arrivalTime))
-            showMessage("Время прибытия зафиксировано")
+            val time = System.currentTimeMillis()
+            val updatedStage = order.stages.stage2.copy(arrivalTime = time)
+            val updatedStages = order.stages.copy(stage2 = updatedStage)
+            // В реальном приложении здесь нужно сохранить обновленный заказ
+            Toast.makeText(this, "Время прибытия зафиксировано", Toast.LENGTH_SHORT).show()
             updateUIState()
+            updateDepartureButtonState()
         }
     }
 
     private fun recordDepartureTime() {
         currentOrder?.let { order ->
-            val departureTime = System.currentTimeMillis()
-
-            // TODO: Сохранить departureTime в базу данных/на сервер
-            // orderRepository.updateStage2DepartureTime(order.id, departureTime)
-
-            // Обновляем UI
-            etDepartureTime.setText(dateFormat.format(departureTime))
-            showMessage("Время выезда зафиксировано")
-            updateUIState()
+            val time = System.currentTimeMillis()
+            val updatedStage = order.stages.stage2.copy(departureTime = time, isCompleted = true)
+            val updatedStages = order.stages.copy(stage2 = updatedStage)
+            Toast.makeText(this, "Этап №2 успешно завершен!", Toast.LENGTH_SHORT).show()
+            finish()
         }
     }
 
     private fun updateCounters() {
         currentOrder?.let { order ->
             val stage = order.stages.stage2
-            tvPhotosCount.text = "Фото: ${stage.containerPhotos.size}"
-            tvDocumentsCount.text = "Документы: ${stage.terminalDocuments.size}"
+            val photosCount = stage.containerPhotos.size
+            val docsCount = stage.terminalDocuments.size
+
+            tvPhotosCount.text = "📷 Фото: $photosCount / $MIN_PHOTOS"
+            tvDocumentsCount.text = "📄 Документы: $docsCount / $MIN_DOCUMENTS"
+
+            val photosOk = photosCount >= MIN_PHOTOS
+            val docsOk = docsCount >= MIN_DOCUMENTS
+
+            tvPhotosCount.setTextColor(ContextCompat.getColor(this,
+                if (photosOk) R.color.green else R.color.red))
+            tvDocumentsCount.setTextColor(ContextCompat.getColor(this,
+                if (docsOk) R.color.green else R.color.red))
         }
     }
 
-    private fun showMessage(message: String) {
-        android.widget.Toast.makeText(this, message, android.widget.Toast.LENGTH_SHORT).show()
+    private fun showError(message: String) {
+        AlertDialog.Builder(this)
+            .setTitle("Необходимо завершить этап")
+            .setMessage(message)
+            .setPositiveButton("Понятно", null)
+            .show()
     }
 }

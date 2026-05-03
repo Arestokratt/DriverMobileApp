@@ -9,8 +9,6 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.drivermobileapp.R
 import com.example.drivermobileapp.data.models.Order1C
-import com.example.drivermobileapp.data.models.PhotoItem
-import com.example.drivermobileapp.data.models.User
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -48,7 +46,6 @@ class PhotosActivity : AppCompatActivity() {
             finish()
         }
 
-        // Обработчик клика по фото в списке
         photosListView.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             val photoItem = photoItems[position]
             showPhotoDetails(photoItem)
@@ -57,45 +54,37 @@ class PhotosActivity : AppCompatActivity() {
 
     private fun loadPhotos(photoType: String) {
         currentOrder?.let { order ->
-            val photos = when (photoType) {
+            val photos: List<String> = when (photoType) {
                 "terminal" -> order.terminalPhotos
                 "warehouse" -> order.warehousePhotos
-                else -> order.terminalPhotos
+                "cargo_issue" -> order.cargoIssuePhotos
+                else -> emptyList()
             }
 
-            tvTitle.text = when (photoType) {
-                "terminal" -> "📷 Фото контейнера (${photos.size})"
-                "warehouse" -> "📷 Фото погрузки (${photos.size})"
-                else -> "📷 Фото (${photos.size})"
+            val titleText = when (photoType) {
+                "terminal" -> "📷 Фото терминала"
+                "warehouse" -> "📷 Фото склада"
+                "cargo_issue" -> "📷 Фото выдачи груза"
+                else -> "📷 Фото"
             }
+            tvTitle.text = "$titleText (${photos.size})"
 
-            // Создаем тестовые данные для фото
             photoItems.clear()
-            photos.forEachIndexed { index, photoName ->
+            for ((index, photoUrl) in photos.withIndex()) {
                 val description = when (photoType) {
-                    "terminal" -> when (photoName) {
-                        "container_front.jpg" -> "Передняя часть контейнера"
-                        "container_back.jpg" -> "Задняя часть контейнера"
-                        "container_seal.jpg" -> "Пломба контейнера"
-                        else -> "Фото контейнера"
-                    }
-                    "warehouse" -> when (photoName) {
-                        "loading_1.jpg" -> "Начало погрузки"
-                        "loading_2.jpg" -> "Процесс погрузки"
-                        "loading_3.jpg" -> "Завершение погрузки"
-                        "cargo_inside.jpg" -> "Груз внутри контейнера"
-                        else -> "Фото погрузки"
-                    }
+                    "terminal" -> "Фото контейнера на терминале"
+                    "warehouse" -> "Фото погрузки на складе"
+                    "cargo_issue" -> "Фото выдачи груза"
                     else -> "Фото"
                 }
 
                 photoItems.add(
                     PhotoItem(
                         id = "photo_${photoType}_$index",
-                        fileName = photoName,
+                        fileName = "Фото_${index + 1}.jpg",
                         description = description,
                         timestamp = System.currentTimeMillis() - (index * 600000L),
-                        photoUrl = "https://example.com/photos/$photoType/$photoName"
+                        photoUrl = photoUrl
                     )
                 )
             }
@@ -108,7 +97,6 @@ class PhotosActivity : AppCompatActivity() {
                 photosListView.visibility = ListView.VISIBLE
                 tvEmpty.visibility = TextView.GONE
 
-                // Используем кастомный адаптер для красивого отображения
                 val adapter = PhotoAdapter(photoItems)
                 photosListView.adapter = adapter
             }
@@ -124,43 +112,29 @@ class PhotosActivity : AppCompatActivity() {
             
             Файл: ${photoItem.fileName}
             Время загрузки: $dateString
-            Статус: ✅ Загружено водителем
-            
-            ${if (photoItem.photoUrl.isNotEmpty()) "URL: ${photoItem.photoUrl}" else "Фото доступно для просмотра"}
+            Статус: ✅ Загружено
         """.trimIndent()
 
         AlertDialog.Builder(this)
             .setTitle("Детали фотографии")
             .setMessage(message)
             .setPositiveButton("Просмотреть") { dialog, _ ->
-                // Здесь можно добавить реальный просмотр фото
-                showPhotoViewer(photoItem)
+                Toast.makeText(this, "Просмотр фото: ${photoItem.fileName}", Toast.LENGTH_SHORT).show()
                 dialog.dismiss()
             }
             .setNegativeButton("Закрыть", null)
             .show()
     }
 
-    private fun showPhotoViewer(photoItem: PhotoItem) {
-        // Заглушка для просмотрщика фото
-        // В реальном приложении здесь будет ImageView с загрузкой фото
+    // Внутренний класс PhotoItem для логиста
+    data class PhotoItem(
+        val id: String,
+        val fileName: String,
+        val description: String,
+        val timestamp: Long,
+        val photoUrl: String
+    )
 
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_photo_view, null)
-        val imageView = dialogView.findViewById<ImageView>(R.id.imageView)
-        val tvPhotoDescription = dialogView.findViewById<TextView>(R.id.tvPhotoDescription)
-
-        // Устанавливаем заглушку изображения
-        imageView.setImageResource(R.drawable.ic_photo_placeholder)
-        tvPhotoDescription.text = photoItem.description
-
-        AlertDialog.Builder(this)
-            .setTitle("Просмотр фото: ${photoItem.fileName}")
-            .setView(dialogView)
-            .setPositiveButton("Закрыть", null)
-            .show()
-    }
-
-    // Кастомный адаптер для красивого отображения фото
     private inner class PhotoAdapter(private val photos: List<PhotoItem>) : BaseAdapter() {
         override fun getCount(): Int = photos.size
         override fun getItem(position: Int): PhotoItem = photos[position]
@@ -182,15 +156,7 @@ class PhotosActivity : AppCompatActivity() {
             tvPhotoDescription.text = photoItem.description
             tvPhotoTime.text = dateFormat.format(Date(photoItem.timestamp))
 
-            // Устанавливаем иконку в зависимости от типа фото
-            when {
-                photoItem.fileName.contains("seal") ->
-                    ivPhotoIcon.setImageResource(android.R.drawable.ic_lock_lock)
-                photoItem.fileName.contains("front") || photoItem.fileName.contains("back") ->
-                    ivPhotoIcon.setImageResource(android.R.drawable.ic_menu_camera)
-                else ->
-                    ivPhotoIcon.setImageResource(android.R.drawable.ic_menu_gallery)
-            }
+            ivPhotoIcon.setImageResource(android.R.drawable.ic_menu_camera)
 
             return view
         }

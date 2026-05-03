@@ -3,87 +3,36 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="16dp"
-    android:background="#f8f9fa"
-    android:layout_marginBottom="8dp">
+    android:padding="12dp">
 
     <ImageView
         android:id="@+id/ivDocumentIcon"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:src="@android:drawable/ic_menu_agenda"
-        android:layout_marginEnd="16dp" />
+        android:src="@android:drawable/ic_menu_edit" />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:orientation="vertical">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="4dp">
-
-            <TextView
-                android:id="@+id/tvDocumentType"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="ТТН"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:background="#2196F3"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="2dp"
-                android:textSize="12sp"
-                android:layout_marginEnd="8dp" />
-
-            <TextView
-                android:id="@+id/tvDocumentName"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="waybill.pdf"
-                android:textStyle="bold"
-                android:textColor="@android:color/black"
-                android:textSize="14sp" />
-
-        </LinearLayout>
+        android:orientation="vertical"
+        android:layout_marginStart="12dp">
 
         <TextView
-            android:id="@+id/tvDocumentDescription"
-            android:layout_width="match_parent"
+            android:id="@+id/tvDocumentName"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Товарно-транспортная накладная"
-            android:textColor="#666"
+            android:text="Документ"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvDocumentTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="время"
             android:textSize="12sp"
-            android:layout_marginBottom="4dp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/tvDocumentTime"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="01.01.2023 10:30"
-                android:textColor="#999"
-                android:textSize="11sp" />
-
-            <TextView
-                android:id="@+id/tvFileSize"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="245 КБ"
-                android:textColor="#666"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-
-        </LinearLayout>
+            android:textColor="#666" />
 
     </LinearLayout>
 

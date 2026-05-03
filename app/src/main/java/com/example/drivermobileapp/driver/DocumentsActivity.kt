@@ -2,32 +2,35 @@ package com.example.drivermobileapp.driver
 
 import OrderDriver
 import android.app.AlertDialog
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.drivermobileapp.R
-import com.example.drivermobileapp.data.models.DocumentItem
-import java.text.SimpleDateFormat
-import java.util.*
 
 class DocumentsActivity : AppCompatActivity() {
 
     private lateinit var btnBack: Button
+    private lateinit var btnAddDocument: Button
     private lateinit var tvTitle: TextView
     private lateinit var documentsListView: ListView
     private lateinit var tvEmpty: TextView
 
     private var currentOrder: OrderDriver? = null
-    private val documentItems = mutableListOf<DocumentItem>()
+    private var stageNumber: Int = 2
+    private var documentListKey: String = "terminalDocuments"
+    private val documentPaths = mutableListOf<String>()
+
+    private val REQUEST_DOCUMENT = 200
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_documents)
 
         currentOrder = intent.getSerializableExtra("ORDER") as? OrderDriver
+        stageNumber = intent.getIntExtra("STAGE_NUMBER", 2)
+        documentListKey = intent.getStringExtra("DOCUMENT_LIST_KEY") ?: "terminalDocuments"
 
         initViews()
         setupClickListeners()
@@ -36,164 +39,106 @@ class DocumentsActivity : AppCompatActivity() {
 
     private fun initViews() {
         btnBack = findViewById(R.id.btnBack)
+        btnAddDocument = findViewById(R.id.btnAddDocument)
         tvTitle = findViewById(R.id.tvTitle)
         documentsListView = findViewById(R.id.documentsListView)
         tvEmpty = findViewById(R.id.tvEmpty)
     }
 
     private fun setupClickListeners() {
-        btnBack.setOnClickListener {
-            finish()
+        btnBack.setOnClickListener { finish() }
+
+        btnAddDocument.setOnClickListener {
+            openFilePicker()
         }
 
         documentsListView.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            val documentItem = documentItems[position]
-            showDocumentDetails(documentItem)
+            showDeleteDialog(position)
+        }
+    }
+
+    private fun openFilePicker() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "*/*"
+            addCategory(Intent.CATEGORY_OPENABLE)
+            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/pdf", "image/jpeg", "image/png", "image/jpg"))
+        }
+        startActivityForResult(intent, REQUEST_DOCUMENT)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == RESULT_OK && requestCode == REQUEST_DOCUMENT) {
+            data?.data?.let { uri ->
+                documentPaths.add(uri.toString())
+                saveDocumentsToOrder()
+                Toast.makeText(this, "Документ сохранен", Toast.LENGTH_SHORT).show()
+                loadDocuments()
+            }
+        }
+    }
+
+    private fun saveDocumentsToOrder() {
+        currentOrder?.let { order ->
+            val updatedStage = when (stageNumber) {
+                2 -> order.stages.stage2.copy(terminalDocuments = documentPaths.toList())
+                3 -> order.stages.stage3.copy(warehouseDocuments = documentPaths.toList())
+                5 -> order.stages.stage5.copy(destinationStationDocuments = documentPaths.toList())
+                6 -> order.stages.stage6.copy(unloadingDocuments = documentPaths.toList())
+                else -> return
+            }
+            // В реальном приложении здесь нужно сохранить обновленный заказ
         }
     }
 
     private fun loadDocuments() {
         currentOrder?.let { order ->
-            val documentType = intent.getStringExtra("DOCUMENT_TYPE") ?: "terminal"
-            val documents = order.stages.stage2.terminalDocuments
-
-            tvTitle.text = when (documentType) {
-                "terminal" -> "📄 Документы терминала (${documents.size})"
-                else -> "📄 Документы (${documents.size})"
+            val documents = when (stageNumber) {
+                2 -> order.stages.stage2.terminalDocuments
+                3 -> order.stages.stage3.warehouseDocuments
+                5 -> order.stages.stage5.destinationStationDocuments
+                6 -> order.stages.stage6.unloadingDocuments
+                else -> emptyList()
             }
 
-            // Создаем тестовые данные для документов
-            documentItems.clear()
-            documents.forEachIndexed { index, docUrl ->
-                val (docType, description) = when (documentType) {
-                    "terminal" -> when {
-                        docUrl.contains("waybill") -> "ТТН" to "Товарно-транспортная накладная"
-                        docUrl.contains("acceptance") -> "Акт" to "Акт приема-передачи контейнера"
-                        else -> "Документ" to "Сопроводительный документ"
-                    }
-                    else -> "Документ" to "Документ"
-                }
+            documentPaths.clear()
+            documentPaths.addAll(documents)
 
-                documentItems.add(
-                    DocumentItem(
-                        id = "doc_${documentType}_$index",
-                        fileName = "document_${index + 1}.pdf",
-                        documentType = docType,
-                        description = description,
-                        timestamp = System.currentTimeMillis() - (index * 600000L),
-                        fileSize = "245 КБ",
-                        documentUrl = docUrl
-                    )
-                )
+            val requiredCount = 2
+            val titleText = when (stageNumber) {
+                2 -> "📄 Документы терминала"
+                3 -> "📄 Документы склада"
+                5 -> "📄 Документы станции"
+                6 -> "📄 Документы выдачи"
+                else -> "📄 Документы"
             }
+            tvTitle.text = "$titleText (${documentPaths.size} / $requiredCount)"
 
-            if (documentItems.isEmpty()) {
+            if (documentPaths.isEmpty()) {
                 documentsListView.visibility = ListView.GONE
                 tvEmpty.visibility = TextView.VISIBLE
-                tvEmpty.text = "📄 Документы не загружены"
+                tvEmpty.text = "📄 Нет документов. Нажмите '+' чтобы добавить"
             } else {
                 documentsListView.visibility = ListView.VISIBLE
                 tvEmpty.visibility = TextView.GONE
 
-                val adapter = DocumentAdapter(documentItems)
+                val adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, documentPaths)
                 documentsListView.adapter = adapter
             }
         }
     }
 
-    private fun showDocumentDetails(documentItem: DocumentItem) {
-        val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault())
-        val dateString = dateFormat.format(Date(documentItem.timestamp))
-
-        val message = """
-            📋 ${documentItem.description}
-            
-            Тип: ${documentItem.documentType}
-            Файл: ${documentItem.fileName}
-            Размер: ${documentItem.fileSize}
-            Время загрузки: $dateString
-            Статус: ✅ Загружено водителем
-        """.trimIndent()
-
+    private fun showDeleteDialog(position: Int) {
         AlertDialog.Builder(this)
-            .setTitle("Детали документа")
-            .setMessage(message)
-            .setPositiveButton("Просмотреть") { dialog, _ ->
-                showDocumentViewer(documentItem)
-                dialog.dismiss()
+            .setTitle("Удалить документ")
+            .setMessage("Вы уверены?")
+            .setPositiveButton("Удалить") { _, _ ->
+                documentPaths.removeAt(position)
+                saveDocumentsToOrder()
+                loadDocuments()
+                Toast.makeText(this, "Документ удален", Toast.LENGTH_SHORT).show()
             }
-            .setNeutralButton("Скачать") { dialog, _ ->
-                showMessage("Загрузка документа ${documentItem.fileName}...")
-                dialog.dismiss()
-            }
-            .setNegativeButton("Закрыть", null)
+            .setNegativeButton("Отмена", null)
             .show()
-    }
-
-    private fun showDocumentViewer(documentItem: DocumentItem) {
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_document_view, null)
-        val ivDocumentIcon = dialogView.findViewById<ImageView>(R.id.ivDocumentIcon)
-        val tvDocumentDescription = dialogView.findViewById<TextView>(R.id.tvDocumentDescription)
-        val tvDocumentInfo = dialogView.findViewById<TextView>(R.id.tvDocumentInfo)
-
-        when {
-            documentItem.fileName.endsWith(".pdf") ->
-                ivDocumentIcon.setImageResource(android.R.drawable.ic_menu_agenda)
-            else ->
-                ivDocumentIcon.setImageResource(android.R.drawable.ic_menu_edit)
-        }
-
-        tvDocumentDescription.text = documentItem.description
-        tvDocumentInfo.text = "Файл: ${documentItem.fileName}\nРазмер: ${documentItem.fileSize}"
-
-        AlertDialog.Builder(this)
-            .setTitle("Просмотр документа: ${documentItem.documentType}")
-            .setView(dialogView)
-            .setPositiveButton("Закрыть", null)
-            .show()
-    }
-
-    private fun showMessage(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
-
-    private inner class DocumentAdapter(private val documents: List<DocumentItem>) : BaseAdapter() {
-        override fun getCount(): Int = documents.size
-        override fun getItem(position: Int): DocumentItem = documents[position]
-        override fun getItemId(position: Int): Long = position.toLong()
-
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-            val view = convertView ?: LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_document, parent, false)
-
-            val documentItem = documents[position]
-            val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
-
-            val tvDocumentName = view.findViewById<TextView>(R.id.tvDocumentName)
-            val tvDocumentType = view.findViewById<TextView>(R.id.tvDocumentType)
-            val tvDocumentDescription = view.findViewById<TextView>(R.id.tvDocumentDescription)
-            val tvDocumentTime = view.findViewById<TextView>(R.id.tvDocumentTime)
-            val tvFileSize = view.findViewById<TextView>(R.id.tvFileSize)
-            val ivDocumentIcon = view.findViewById<ImageView>(R.id.ivDocumentIcon)
-
-            tvDocumentName.text = documentItem.fileName
-            tvDocumentType.text = documentItem.documentType
-            tvDocumentDescription.text = documentItem.description
-            tvDocumentTime.text = dateFormat.format(Date(documentItem.timestamp))
-            tvFileSize.text = documentItem.fileSize
-
-            when {
-                documentItem.fileName.endsWith(".pdf") -> {
-                    ivDocumentIcon.setImageResource(android.R.drawable.ic_menu_agenda)
-                    tvDocumentType.setBackgroundColor(0xFFE3F2FD.toInt())
-                }
-                else -> {
-                    ivDocumentIcon.setImageResource(android.R.drawable.ic_menu_edit)
-                    tvDocumentType.setBackgroundColor(0xFFFFF3E0.toInt())
-                }
-            }
-
-            return view
-        }
     }
 }
