@@ -18,10 +18,13 @@ class PreferencesManager(context: Context) {
     // Сохраняем статус конкретного этапа
     fun saveStageCompleted(orderNumber: String, stageNumber: Int, isCompleted: Boolean) {
         prefs.edit().putBoolean("stage_${orderNumber}_${stageNumber}", isCompleted).apply()
+        println("DEBUG PREFS: Saved stage $stageNumber completed = $isCompleted")
     }
 
     fun isStageCompleted(orderNumber: String, stageNumber: Int): Boolean {
-        return prefs.getBoolean("stage_${orderNumber}_${stageNumber}", false)
+        val completed = prefs.getBoolean("stage_${orderNumber}_${stageNumber}", false)
+        println("DEBUG PREFS: Stage $stageNumber completed = $completed")
+        return completed
     }
 
     fun saveCurrentDriverId(driverId: String) {

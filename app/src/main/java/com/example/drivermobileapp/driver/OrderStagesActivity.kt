@@ -124,12 +124,14 @@ class OrderStagesActivity : AppCompatActivity() {
     private fun loadStagesFromServer() {
         currentOrder?.let { order ->
             lifecycleScope.launch {
-                val response = orderRepository.getOrderStages(order.number)  // ← Изменено
+                val response = orderRepository.getOrderStages(order.number)
                 if (response != null) {
+                    println("DEBUG: Server response currentStage = ${response.currentStage}")
+                    println("DEBUG: Server response stages = ${response.stages}")
                     currentActiveStage = response.currentStage
                     updateAllStagesStatus()
                 } else {
-                    showMessage("Ошибка загрузки статусов")
+                    println("DEBUG: Using cache - currentStage = ${preferencesManager.getCurrentStage(order.number)}")
                     currentActiveStage = preferencesManager.getCurrentStage(order.number)
                     updateAllStagesStatus()
                 }
@@ -142,6 +144,8 @@ class OrderStagesActivity : AppCompatActivity() {
 
         for (stageNumber in 1..4) {
             val isCompleted = preferencesManager.isStageCompleted(orderNumber, stageNumber)
+
+            // ✅ Исправлено: используем currentActiveStage для определения активного этапа
             val status = when {
                 isCompleted -> StageUiStatus.COMPLETED
                 stageNumber == currentActiveStage -> StageUiStatus.IN_PROGRESS
