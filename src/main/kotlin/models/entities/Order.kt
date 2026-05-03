@@ -11,7 +11,7 @@ data class Order(
     val emptyContainerTerminalAddress: String,
     val containerType: String,
     val containerCount: Int,
-    val containerDeliveryDateTime: Timestamp,
+    val containerDeliveryDateTime: Long,
     val containerLoadingAddress: String,
     val cargoName: String,
     val cargoWeight: Double,

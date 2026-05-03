@@ -159,18 +159,28 @@ class OrderRepository {
     // Получить текущий активный этап
     fun getCurrentActiveStage(orderNumber: String): Int {
         val query = """
-            SELECT stage_number FROM order_stages
-            WHERE order_id = (SELECT id FROM orders WHERE order_number = ?)
-              AND status = 'IN_PROGRESS'
-            LIMIT 1
-        """.trimIndent()
+        SELECT stage_number, status FROM order_stages
+        WHERE order_id = (SELECT id FROM orders WHERE order_number = ?)
+        ORDER BY stage_number
+    """.trimIndent()
 
         return try {
             DatabaseConfig.getConnection().use { conn ->
                 conn.prepareStatement(query).use { stmt ->
                     stmt.setString(1, orderNumber)
                     val rs = stmt.executeQuery()
-                    if (rs.next()) rs.getInt("stage_number") else 1
+                    while (rs.next()) {
+                        val status = rs.getString("status")
+                        // Первый этап, который НЕ ЗАВЕРШЕН
+                        if (status != "COMPLETED") {
+                            val stageNumber = rs.getInt("stage_number")
+                            println("DEBUG: getCurrentActiveStage = $stageNumber (status=$status)")
+                            return stageNumber
+                        }
+                    }
+                    // Если все этапы завершены, возвращаем 7
+                    println("DEBUG: getCurrentActiveStage = 7 (all completed)")
+                    7
                 }
             }
         } catch (e: Exception) {
@@ -210,7 +220,7 @@ class OrderRepository {
             emptyContainerTerminalAddress = rs.getString("empty_container_terminal_address"),
             containerType = rs.getString("container_type"),
             containerCount = rs.getInt("container_count"),
-            containerDeliveryDateTime = rs.getTimestamp("container_delivery_date_time"),
+            containerDeliveryDateTime = rs.getTimestamp("container_delivery_date_time")?.time ?: 0L,
             containerLoadingAddress = rs.getString("container_loading_address"),
             cargoName = rs.getString("cargo_name"),
             cargoWeight = rs.getDouble("cargo_weight"),
@@ -250,5 +260,100 @@ class OrderRepository {
             gpsLongitude = rs.getDouble("gps_longitude"),
             photoUrl = rs.getString("photo_url")
         )
+    }
+
+    // Получить входящие заявки (статус PENDING)
+    fun getIncomingOrders(driverId: String): List<Order> {
+        println("DEBUG SERVER: getIncomingOrders called with driverId = '$driverId'")
+
+        val query = "SELECT * FROM orders WHERE assigned_driver_id = ? AND status = 'PENDING'"
+
+        return try {
+            DatabaseConfig.getConnection().use { conn ->
+                conn.prepareStatement(query).use { stmt ->
+                    stmt.setString(1, driverId)
+                    val rs = stmt.executeQuery()
+                    val orders = mutableListOf<Order>()
+                    while (rs.next()) {
+                        orders.add(mapToOrder(rs))
+                    }
+                    println("DEBUG SERVER: found ${orders.size} orders")
+                    orders
+                }
+            }
+        } catch (e: Exception) {
+            println("DEBUG SERVER: error = ${e.message}")
+            emptyList()
+        }
+    }
+
+    // Получить мои заявки (статус ACCEPTED или IN_PROGRESS)
+    fun getMyOrders(driverId: String): List<Order> {
+        val query = """
+        SELECT * FROM orders 
+        WHERE assigned_driver_id = ? 
+        AND status IN ('ACCEPTED', 'IN_PROGRESS')
+        ORDER BY order_date DESC
+    """.trimIndent()
+
+        return try {
+            DatabaseConfig.getConnection().use { conn ->
+                conn.prepareStatement(query).use { stmt ->
+                    stmt.setString(1, driverId)
+                    val rs = stmt.executeQuery()
+                    val orders = mutableListOf<Order>()
+                    while (rs.next()) {
+                        orders.add(mapToOrder(rs))
+                    }
+                    orders
+                }
+            }
+        } catch (e: Exception) {
+            println("DEBUG: getMyOrders error = ${e.message}")
+            emptyList()
+        }
+    }
+
+    // Принять заявку
+    fun acceptOrder(orderNumber: String, driverId: String): Boolean {
+        val query = """
+        UPDATE orders 
+        SET status = 'ACCEPTED', 
+            assigned_driver_id = ?,
+            updated_at = NOW()
+        WHERE order_number = ? AND status = 'PENDING'
+    """.trimIndent()
+
+        return try {
+            DatabaseConfig.getConnection().use { conn ->
+                conn.prepareStatement(query).use { stmt ->
+                    stmt.setString(1, driverId)  // driverId = "9393fa81-8fae-4ec9-b763-b7d054f637b7"
+                    stmt.setString(2, orderNumber)
+                    val rowsUpdated = stmt.executeUpdate()
+                    println("DEBUG: acceptOrder - rows updated = $rowsUpdated")
+                    rowsUpdated > 0
+                }
+            }
+        } catch (e: Exception) {
+            println("DEBUG: acceptOrder error = ${e.message}")
+            false
+        }
+    }
+
+    // Отклонить заявку
+    fun rejectOrder(orderNumber: String): Boolean {
+        val query = "UPDATE orders SET status = 'REJECTED' WHERE order_number = ? AND status = 'PENDING'"
+
+        return try {
+            DatabaseConfig.getConnection().use { conn ->
+                conn.prepareStatement(query).use { stmt ->
+                    stmt.setString(1, orderNumber)
+                    stmt.executeUpdate() > 0
+                }
+            }
+        } catch (e: Exception) {
+            println("Error in rejectOrder: ${e.message}")
+            false
+        }
     }
 }

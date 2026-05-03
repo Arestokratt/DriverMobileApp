@@ -12,19 +12,19 @@ class OrderService {
     fun getOrderStages(orderNumber: String): OrderStagesResponse? {
         val order = orderRepository.getOrderByNumber(orderNumber) ?: return null
         val stages = orderRepository.getOrderStages(orderNumber)
-        val currentStage = orderRepository.getCurrentActiveStage(orderNumber)
+        val currentStage = orderRepository.getCurrentActiveStage(orderNumber) // ← должен вернуть 2
 
         val stagesMap = mutableMapOf<Int, StageStatusResponse>()
         stages.forEach { stage ->
             stagesMap[stage.stageNumber] = StageStatusResponse(
-                isCompleted = stage.status == "COMPLETED",
+                isCompleted = stage.status == "COMPLETED",  // stage.status - строка
                 completedAt = stage.completedAt?.time
             )
         }
 
         return OrderStagesResponse(
             orderNumber = orderNumber,
-            currentStage = currentStage,
+            currentStage = currentStage,  // ← должно быть 2
             stages = stagesMap,
             lastUpdated = System.currentTimeMillis()
         )

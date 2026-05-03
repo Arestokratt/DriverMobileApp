@@ -35,3 +35,7 @@ data class CreateOrderRequest(
     val assignedDriverName: String?,
     val notes: String?
 )
+
+data class AcceptOrderRequest(
+    val driverId: String
+)
