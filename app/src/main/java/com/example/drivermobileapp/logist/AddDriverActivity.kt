@@ -120,7 +120,7 @@ class AddDriverActivity : BaseActivity() {
                     isActive = true
                 )
 
-                val userResponse = RetrofitClient.instance.createUser(createUserRequest)
+                val userResponse = RetrofitClient.authApi.createUser(createUserRequest)
 
                 // 2. Создаем запись водителя
                 val createDriverRequest = CreateDriverRequest(
@@ -128,7 +128,7 @@ class AddDriverActivity : BaseActivity() {
                     driverLicense = driverLicense
                 )
 
-                val driverResponse = RetrofitClient.instance.createDriver(createDriverRequest)
+                val driverResponse = RetrofitClient.authApi.createDriver(createDriverRequest)
 
                 withContext(Dispatchers.Main) {
                     showLoading(false)

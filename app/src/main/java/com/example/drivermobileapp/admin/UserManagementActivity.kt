@@ -32,7 +32,7 @@ class UserManagementActivity : AppCompatActivity() {
     init {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = RetrofitClient.instance.getAllUsers()
+                val response = RetrofitClient.authApi.getAllUsers()
                 withContext(Dispatchers.Main) {
                     users.clear()
                     users.addAll(response.map { userResponse ->

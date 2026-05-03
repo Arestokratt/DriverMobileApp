@@ -1,7 +1,7 @@
 import java.io.Serializable
 
 data class OrderDriver(
-    val id: String,
+    val id: String = "",
     val number: String,
     val status: OrderStatus,
     val driverId: String?,
@@ -36,7 +36,7 @@ data class OrderDriver(
 ) : Serializable {
 
     enum class OrderStatus {
-        NEW, ACCEPTED, IN_PROGRESS, COMPLETED, CANCELLED
+        NEW, ACCEPTED, IN_PROGRESS, COMPLETED, CANCELLED, PENDING
     }
 
     data class OrderStages(

@@ -1,128 +1,146 @@
-package com.example.drivermobileapp.data.repositories
+package com.example.drivermobileapp.data.repository
 
 import OrderDriver
-//import com.example.drivermobileapp.data.models.Order
-//import com.example.drivermobileapp.data.models.OrderDriver
+import com.example.drivermobileapp.data.api.ApiStageStatus
+import com.example.drivermobileapp.data.api.CompleteStageRequest
+import com.example.drivermobileapp.data.api.CompleteStageResponse
+import com.example.drivermobileapp.data.api.OrderStagesResponse
+import com.example.drivermobileapp.data.api.RetrofitClient
+import com.example.drivermobileapp.data.local.PreferencesManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-class OrderRepository {
+class OrderRepository(private val prefs: PreferencesManager) {
 
-    // TODO: Заменить на реальную работу с API/БД
-    private val orders = mutableListOf<OrderDriver>()
+    private val orderApi = RetrofitClient.orderApi
 
-    fun getIncomingOrders(): List<OrderDriver> {
-        return orders.filter { it.status == OrderDriver.OrderStatus.NEW }
-    }
+    suspend fun loadOrderStages(orderNumber: String): OrderStagesResponse? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = orderApi.getOrderStages(orderNumber)
+                prefs.saveCurrentStage(orderNumber, response.currentStage)
+                response.stages.forEach { (stageNumber, status) ->
+                    prefs.saveStageCompleted(orderNumber, stageNumber, status.isCompleted)
+                }
+                response
+            } catch (e: Exception) {
+                val cachedStage = prefs.getCurrentStage(orderNumber)
+                val stages = mutableMapOf<Int, ApiStageStatus>()  // ← Изменено
+                for (i in 1..7) {
+                    val isCompleted = prefs.isStageCompleted(orderNumber, i)
+                    stages[i] = ApiStageStatus(isCompleted = isCompleted)  // ← Изменено
+                }
 
-    fun getMyOrders(driverId: String): List<OrderDriver> {
-        return orders.filter { it.driverId == driverId && it.status == OrderDriver.OrderStatus.ACCEPTED }
-    }
-
-    fun acceptOrder(orderId: String, driverId: String): Boolean {
-        val order = orders.find { it.id == orderId }
-        return if (order != null) {
-            // В реальном приложении здесь будет вызов API
-            orders.remove(order)
-            orders.add(order.copy(
-                status = OrderDriver.OrderStatus.ACCEPTED,
-                driverId = driverId
-            ))
-            true
-        } else {
-            false
+                OrderStagesResponse(
+                    orderNumber = orderNumber,
+                    currentStage = cachedStage,
+                    stages = stages,
+                    lastUpdated = System.currentTimeMillis()
+                )
+            }
         }
+    }
+
+    suspend fun completeStage(orderNumber: String, stageNumber: Int, driverId: String): CompleteStageResponse? {
+        return withContext(Dispatchers.IO) {
+            try {
+                // ВРЕМЕННО: имитируем успешный ответ
+                prefs.saveStageCompleted(orderNumber, stageNumber, true)
+                prefs.saveCurrentStage(orderNumber, stageNumber + 1)
+
+                CompleteStageResponse(
+                    success = true,
+                    nextStage = stageNumber + 1,
+                    message = "Этап завершен"
+                )
+
+                /* Оригинальный код (закомментирован)
+                val request = CompleteStageRequest(driverId = driverId)
+                val response = orderApi.completeStage(orderNumber, stageNumber, request)
+                if (response.success) {
+                    prefs.saveStageCompleted(orderNumber, stageNumber, true)
+                    prefs.saveCurrentStage(orderNumber, response.nextStage)
+                }
+                response
+                */
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+    // Временные методы для работы без сервера
+    fun acceptOrder(orderId: String, driverId: String): Boolean {
+        // TODO: Реализовать API вызов
+        return true
     }
 
     fun rejectOrder(orderId: String): Boolean {
-        val order = orders.find { it.id == orderId }
-        return if (order != null) {
-            // В реальном приложении здесь будет вызов API
-            orders.remove(order)
-            true
-        } else {
-            false
-        }
+        // TODO: Реализовать API вызов
+        return true
     }
 
-    // Метод для добавления тестовых данных в базу данных!!!
+    // ========== ТЕСТОВЫЕ ДАННЫЕ (ВРЕМЕННО) ==========
+    fun getIncomingOrders(): List<OrderDriver> {
+        return listOf(
+            OrderDriver(
+                id = "1",
+                number = "ORD-001",
+                status = OrderDriver.OrderStatus.PENDING,
+                driverId = null,
+                customerName = "ООО Ромашка",
+                address = "г. Москва, ул. Ленина, 10",
+                createdAt = System.currentTimeMillis(),
+                plannedDeliveryTime = null,
+                terminalPickupAddress = "г. Москва, ул. Терминальная, д. 1",
+                containerType = "20ft",
+                containerCount = 2,
+                containerDeliveryTime = System.currentTimeMillis(),
+                loadingAddress = "г. Москва, ул. Заводская, д. 15",
+                cargoName = "Строительные материалы",
+                cargoWeight = 2500.5,
+                loadingContact = "Иванов Иван",
+                departureStation = "Москва-Товарная",
+                departureContact = "Петров Петр",
+                destinationStation = "Санкт-Петербург-Сортировочный",
+                destinationContact = "Сидоров Алексей",
+                unloadingAddress = "г. Санкт-Петербург, ул. Складская, д. 10",
+                unloadingContact = "Кузнецов Николай",
+                terminalReturnAddress = "г. Санкт-Петербург, ул. Терминальная, д. 5"
+            )
+        )
+    }
+
+    fun getMyOrders(driverId: String): List<OrderDriver> {
+        return listOf(
+            OrderDriver(
+                id = "2",
+                number = "ORD-002",
+                status = OrderDriver.OrderStatus.ACCEPTED,
+                driverId = driverId,
+                customerName = "ООО Лютик",
+                address = "г. Санкт-Петербург, ул. Пушкина, 5",
+                createdAt = System.currentTimeMillis(),
+                plannedDeliveryTime = null,
+                terminalPickupAddress = "г. Москва, ул. Терминальная, д. 2",
+                containerType = "40ft",
+                containerCount = 1,
+                containerDeliveryTime = System.currentTimeMillis(),
+                loadingAddress = "г. Москва, ул. Заводская, д. 20",
+                cargoName = "Оборудование",
+                cargoWeight = 5000.0,
+                loadingContact = "Сергеев Сергей",
+                departureStation = "Москва-Пассажирская",
+                departureContact = "Алексеев Алексей",
+                destinationStation = "Нижний Новгород-Сортировочный",
+                destinationContact = "Николаев Николай",
+                unloadingAddress = "г. Нижний Новгород, ул. Промышленная, д. 5",
+                unloadingContact = "Дмитриев Дмитрий",
+                terminalReturnAddress = "г. Нижний Новгород, ул. Терминальная, д. 3"
+            )
+        )
+    }
+
     fun addTestOrders() {
-        if (orders.isEmpty()) {
-            orders.addAll(listOf(
-                OrderDriver(
-                    id = "1",
-                    number = "1001",
-                    status = OrderDriver.OrderStatus.NEW,
-                    driverId = null,
-                    customerName = "Петр Сидоров",
-                    address = "ул. Ленина, д. 15",
-                    createdAt = System.currentTimeMillis(),
-                    plannedDeliveryTime = System.currentTimeMillis() + 3600000,
-                    terminalPickupAddress = "ул. Заводская, 10",
-                    containerType = "20-футовый",
-                    containerCount = 2,
-                    loadingAddress = "ул. Промышленная, 25",
-                    cargoName = "Электроника",
-                    cargoWeight = 1500.0,
-                    loadingContact = "Иван +7-999-123-45-67",
-                    departureStation = "Станция Москва-Товарная", // ← ДОБАВЛЕНО
-                    departureContact = "Диспетчер +7-999-765-43-21",
-                    destinationStation = "Станция СПб-Финляндский", // ← ДОБАВЛЕНО
-                    destinationContact = "Диспетчер +7-812-123-45-67",
-                    unloadingAddress = "ул. Невская, 50",
-                    unloadingContact = "Мария +7-812-987-65-43",
-                    terminalReturnAddress = "ул. Портовая, 5",
-                    containerDeliveryTime = System.currentTimeMillis() + 86400000, // Завтра
-                ),
-                OrderDriver(
-                    id = "2",
-                    number = "1002",
-                    status = OrderDriver.OrderStatus.NEW,
-                    driverId = null,
-                    customerName = "Мария Иванова",
-                    address = "пр. Мира, д. 42",
-                    createdAt = System.currentTimeMillis(),
-                    plannedDeliveryTime = System.currentTimeMillis() + 7200000,
-                    terminalPickupAddress = null,
-                    containerType = "40-футовый",
-                    containerCount = 1,
-                    loadingAddress = "ул. Складская, 15",
-                    cargoName = "Одежда",
-                    cargoWeight = 800.0,
-                    loadingContact = "Сергей +7-999-111-22-33",
-                    departureStation = "Станция Москва-Павелецкая", // ← ДОБАВЛЕНО
-                    departureContact = null,
-                    destinationStation = null, // Только этапы 1-4
-                    destinationContact = null,
-                    unloadingAddress = null,
-                    unloadingContact = null,
-                    terminalReturnAddress = null,
-                    containerDeliveryTime = System.currentTimeMillis() + 86400000, // Завтра
-                ),
-                OrderDriver(
-                    id = "3",
-                    number = "1003",
-                    status = OrderDriver.OrderStatus.ACCEPTED,
-                    driverId = "driver1",
-                    customerName = "Алексей Петров",
-                    address = "ул. Садовая, д. 7",
-                    createdAt = System.currentTimeMillis() - 86400000,
-                    plannedDeliveryTime = System.currentTimeMillis() + 1800000,
-                    terminalPickupAddress = null,
-                    containerType = "20-футовый рефрижератор",
-                    containerCount = 1,
-                    loadingAddress = null,
-                    cargoName = "Продукты питания",
-                    cargoWeight = 1200.0,
-                    loadingContact = null,
-                    departureStation = null,
-                    departureContact = null,
-                    destinationStation = "Станция СПб-Ладожский", // ← ДОБАВЛЕНО
-                    destinationContact = "Диспетчер +7-812-555-44-33",
-                    unloadingAddress = null,
-                    unloadingContact = null,
-                    terminalReturnAddress = null,
-                    containerDeliveryTime = System.currentTimeMillis() + 86400000, // Завтра
-                )
-            ))
-        }
+        // Только для тестирования
     }
 }

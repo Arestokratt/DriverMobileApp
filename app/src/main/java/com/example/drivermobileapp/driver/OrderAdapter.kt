@@ -42,6 +42,7 @@ class   OrderAdapter(
             OrderDriver.OrderStatus.IN_PROGRESS -> "В процессе"
             OrderDriver.OrderStatus.COMPLETED -> "Завершена"
             OrderDriver.OrderStatus.CANCELLED -> "Отменена"
+            OrderDriver.OrderStatus.PENDING -> "Ожидает"
         }
 
         holder.tvStatus.text = statusText
@@ -53,6 +54,8 @@ class   OrderAdapter(
             OrderDriver.OrderStatus.IN_PROGRESS -> "#2196F3" // Синий
             OrderDriver.OrderStatus.COMPLETED -> "#9E9E9E" // Серый
             OrderDriver.OrderStatus.CANCELLED -> "#F44336" // Красный
+            OrderDriver.OrderStatus.PENDING -> "#FF9800" // Оранжевый
+
         }
         holder.tvStatus.setTextColor(Color.parseColor(statusColor))
 

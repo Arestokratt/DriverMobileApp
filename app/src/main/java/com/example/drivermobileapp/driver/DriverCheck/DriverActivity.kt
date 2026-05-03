@@ -44,7 +44,7 @@ class DriverActivity : BaseActivity() {  // ← Изменено: AppCompatActiv
         setContentView(R.layout.activity_driver)
 
         // Инициализируем Repository с нашим API
-        shiftRepository = ShiftRepository(RetrofitClient.instance)
+        shiftRepository = ShiftRepository(RetrofitClient.authApi)
 
         initViews()
         setupClickListeners()

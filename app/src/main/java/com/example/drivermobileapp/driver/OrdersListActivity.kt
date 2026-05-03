@@ -10,8 +10,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.drivermobileapp.R
+import com.example.drivermobileapp.data.local.PreferencesManager
 //import com.example.drivermobileapp.data.models.OrderDriver
-import com.example.drivermobileapp.data.repositories.OrderRepository
+import com.example.drivermobileapp.data.repository.OrderRepository
 //import com.example.drivermobileapp.driver.adapters.OrderAdapter
 
 class OrdersListActivity : AppCompatActivity() {
@@ -24,7 +25,8 @@ class OrdersListActivity : AppCompatActivity() {
     private lateinit var orderAdapter: OrderAdapter
 
     private var ordersType: String = ""
-    private val orderRepository = OrderRepository()
+    private lateinit var preferencesManager: PreferencesManager  // ← Добавить
+    private lateinit var orderRepository: OrderRepository  // ← Изменить
     private val currentDriverId = "driver1" // TODO: Получать из настроек/логина
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,8 +36,12 @@ class OrdersListActivity : AppCompatActivity() {
         ordersType = intent.getStringExtra("ORDERS_TYPE") ?: ""
         println("DEBUG: OrdersListActivity started with type: '$ordersType'")
 
-        // Добавляем тестовые данные
-        orderRepository.addTestOrders()
+        // ← Добавить инициализацию
+        preferencesManager = PreferencesManager(this)
+        orderRepository = OrderRepository(preferencesManager)
+
+        // Добавляем тестовые данные (если нужно)
+        // orderRepository.addTestOrders() // ← Этот метод нужно будет реализовать или убрать
 
         initViews()
         setupClickListeners()

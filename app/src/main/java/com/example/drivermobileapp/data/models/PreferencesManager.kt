@@ -4,17 +4,31 @@ import android.content.Context
 import android.content.SharedPreferences
 
 class PreferencesManager(context: Context) {
-    private val prefs: SharedPreferences = context.getSharedPreferences("order_progress", Context.MODE_PRIVATE)
+    private val prefs: SharedPreferences = context.getSharedPreferences("order_cache", Context.MODE_PRIVATE)
 
+    // Сохраняем текущий этап
     fun saveCurrentStage(orderNumber: String, stage: Int) {
-        prefs.edit().putInt("stage_$orderNumber", stage).apply()
+        prefs.edit().putInt("current_stage_$orderNumber", stage).apply()
     }
 
     fun getCurrentStage(orderNumber: String): Int {
-        return prefs.getInt("stage_$orderNumber", 1) // По умолчанию 1
+        return prefs.getInt("current_stage_$orderNumber", 1)
     }
 
-    fun clearOrderProgress(orderNumber: String) {
-        prefs.edit().remove("stage_$orderNumber").apply()
+    // Сохраняем статус конкретного этапа
+    fun saveStageCompleted(orderNumber: String, stageNumber: Int, isCompleted: Boolean) {
+        prefs.edit().putBoolean("stage_${orderNumber}_${stageNumber}", isCompleted).apply()
+    }
+
+    fun isStageCompleted(orderNumber: String, stageNumber: Int): Boolean {
+        return prefs.getBoolean("stage_${orderNumber}_${stageNumber}", false)
+    }
+
+    // Очистить кэш заказа
+    fun clearOrderCache(orderNumber: String) {
+        prefs.edit().remove("current_stage_$orderNumber").apply()
+        for (i in 1..7) {
+            prefs.edit().remove("stage_${orderNumber}_$i").apply()
+        }
     }
 }

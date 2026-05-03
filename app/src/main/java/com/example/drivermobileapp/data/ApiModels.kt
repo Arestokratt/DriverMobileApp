@@ -26,3 +26,48 @@ data class DriverResponse(
     val isActive: Boolean,
     val driverLicense: String
 )
+
+//  DATA CLASSES ДЛЯ ЭТАПОВ
+data class ApiStageStatus(
+    @SerializedName("isCompleted")
+    val isCompleted: Boolean,
+
+    @SerializedName("completedAt")
+    val completedAt: Long? = null
+)
+
+data class OrderStagesResponse(
+    @SerializedName("orderNumber")
+    val orderNumber: String,
+
+    @SerializedName("currentStage")
+    val currentStage: Int,
+
+    @SerializedName("stages")
+    val stages: Map<Int, ApiStageStatus>,
+
+    @SerializedName("lastUpdated")
+    val lastUpdated: Long
+)
+
+data class CompleteStageRequest(
+    @SerializedName("driverId")
+    val driverId: String,
+
+    @SerializedName("driverNotes")  // ← Добавь это поле
+    val driverNotes: String? = null,
+
+    @SerializedName("completedAt")
+    val completedAt: Long = System.currentTimeMillis()
+)
+
+data class CompleteStageResponse(
+    @SerializedName("success")
+    val success: Boolean,
+
+    @SerializedName("nextStage")
+    val nextStage: Int,
+
+    @SerializedName("message")
+    val message: String? = null
+)

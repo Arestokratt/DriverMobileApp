@@ -73,7 +73,7 @@ class AuthActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = RetrofitClient.instance.login(LoginRequest(login, password))
+                val response = RetrofitClient.authApi.login(LoginRequest(login, password))
 
                 withContext(Dispatchers.Main) {
                     showLoading(false)

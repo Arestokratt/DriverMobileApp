@@ -7,9 +7,10 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.example.drivermobileapp.R
+import com.example.drivermobileapp.data.local.PreferencesManager
 //import com.example.drivermobileapp.data.models.Order
 //import com.example.drivermobileapp.data.models.OrderDriver
-import com.example.drivermobileapp.data.repositories.OrderRepository
+import com.example.drivermobileapp.data.repository.OrderRepository
 
 class OrderDetailActivity : AppCompatActivity() {
 
@@ -21,7 +22,8 @@ class OrderDetailActivity : AppCompatActivity() {
 
     private var currentOrder: OrderDriver? = null
     private var ordersType: String = ""
-    private val orderRepository = OrderRepository()
+    private lateinit var preferencesManager: PreferencesManager  // ← Добавить
+    private lateinit var orderRepository: OrderRepository  // ← Изменить на lateinit
     private val currentDriverId = "driver1" // TODO: Получать из настроек/логина
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,6 +32,10 @@ class OrderDetailActivity : AppCompatActivity() {
 
         currentOrder = intent.getSerializableExtra("ORDER") as? OrderDriver
         ordersType = intent.getStringExtra("ORDERS_TYPE") ?: ""
+
+        // ← Добавить инициализацию
+        preferencesManager = PreferencesManager(this)
+        orderRepository = OrderRepository(preferencesManager)
 
         initViews()
         setupClickListeners()

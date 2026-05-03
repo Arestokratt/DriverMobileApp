@@ -9,8 +9,11 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.example.drivermobileapp.R
 import com.example.drivermobileapp.data.local.PreferencesManager
+import com.example.drivermobileapp.data.repository.OrderRepository
+import kotlinx.coroutines.launch
 
 class OrderStagesActivity : AppCompatActivity() {
 
@@ -19,7 +22,6 @@ class OrderStagesActivity : AppCompatActivity() {
     private lateinit var tvInfo: TextView
     private lateinit var layoutStages: LinearLayout
 
-    // Stage layouts
     private lateinit var stage1Layout: LinearLayout
     private lateinit var stage2Layout: LinearLayout
     private lateinit var stage3Layout: LinearLayout
@@ -28,7 +30,6 @@ class OrderStagesActivity : AppCompatActivity() {
     private lateinit var stage6Layout: LinearLayout
     private lateinit var stage7Layout: LinearLayout
 
-    // Stage status texts
     private lateinit var stage1Status: TextView
     private lateinit var stage2Status: TextView
     private lateinit var stage3Status: TextView
@@ -39,6 +40,10 @@ class OrderStagesActivity : AppCompatActivity() {
 
     private var currentOrder: OrderDriver? = null
     private lateinit var preferencesManager: PreferencesManager
+    private lateinit var orderRepository: OrderRepository
+
+    // Текущий активный этап с сервера
+    private var currentActiveStage: Int = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,12 +51,15 @@ class OrderStagesActivity : AppCompatActivity() {
 
         currentOrder = intent.getSerializableExtra("ORDER") as? OrderDriver
         preferencesManager = PreferencesManager(this)
+        orderRepository = OrderRepository(preferencesManager)
 
         initViews()
         setupClickListeners()
         displayOrderInfo()
         setupStagesVisibility()
-        updateAllStagesStatus()
+
+        // Загружаем статусы с сервера
+        loadStagesFromServer()
     }
 
     private fun initViews() {
@@ -99,7 +107,6 @@ class OrderStagesActivity : AppCompatActivity() {
     }
 
     private fun setupStagesVisibility() {
-        // Скрываем все этапы
         stage1Layout.visibility = View.GONE
         stage2Layout.visibility = View.GONE
         stage3Layout.visibility = View.GONE
@@ -108,33 +115,43 @@ class OrderStagesActivity : AppCompatActivity() {
         stage6Layout.visibility = View.GONE
         stage7Layout.visibility = View.GONE
 
-        // Показываем только первые 4 этапа
         stage1Layout.visibility = View.VISIBLE
         stage2Layout.visibility = View.VISIBLE
         stage3Layout.visibility = View.VISIBLE
         stage4Layout.visibility = View.VISIBLE
     }
 
-    private fun getCurrentActiveStage(): Int {
-        val orderNumber = currentOrder?.number ?: ""
-        return preferencesManager.getCurrentStage(orderNumber)
+    private fun loadStagesFromServer() {
+        currentOrder?.let { order ->
+            lifecycleScope.launch {
+                val response = orderRepository.loadOrderStages(order.number)  // ← Изменено
+                if (response != null) {
+                    currentActiveStage = response.currentStage
+                    updateAllStagesStatus()
+                } else {
+                    showMessage("Ошибка загрузки статусов")
+                    currentActiveStage = preferencesManager.getCurrentStage(order.number)
+                    updateAllStagesStatus()
+                }
+            }
+        }
     }
 
     private fun updateAllStagesStatus() {
-        val currentStage = getCurrentActiveStage()
+        val orderNumber = currentOrder?.number ?: ""
 
         for (stageNumber in 1..4) {
+            val isCompleted = preferencesManager.isStageCompleted(orderNumber, stageNumber)
             val status = when {
-                stageNumber < currentStage -> StageStatus.COMPLETED
-                stageNumber == currentStage -> StageStatus.IN_PROGRESS
-                else -> StageStatus.PENDING
+                isCompleted -> StageUiStatus.COMPLETED
+                stageNumber == currentActiveStage -> StageUiStatus.IN_PROGRESS
+                else -> StageUiStatus.PENDING
             }
-
             updateStageStatusUI(stageNumber, status)
         }
     }
 
-    private fun updateStageStatusUI(stageNumber: Int, status: StageStatus) {
+    private fun updateStageStatusUI(stageNumber: Int, status: StageUiStatus) {
         val statusView = when (stageNumber) {
             1 -> stage1Status
             2 -> stage2Status
@@ -152,20 +169,18 @@ class OrderStagesActivity : AppCompatActivity() {
         }
 
         when (status) {
-            StageStatus.PENDING -> {
+            StageUiStatus.PENDING -> {
                 statusView.text = "⏰ Ожидает"
                 statusView.setTextColor(ContextCompat.getColor(this, R.color.gray))
                 layout.alpha = 0.6f
-                layout.setBackgroundResource(R.drawable.stage_background)
             }
-            StageStatus.IN_PROGRESS -> {
+            StageUiStatus.IN_PROGRESS -> {
                 statusView.text = "🔄 В процессе"
                 statusView.setTextColor(ContextCompat.getColor(this, R.color.orange))
                 layout.alpha = 1.0f
-                layout.setBackgroundResource(R.drawable.stage_background)
                 layout.setBackgroundColor(ContextCompat.getColor(this, R.color.light_orange))
             }
-            StageStatus.COMPLETED -> {
+            StageUiStatus.COMPLETED -> {
                 statusView.text = "✅ Выполнено"
                 statusView.setTextColor(ContextCompat.getColor(this, R.color.green))
                 layout.alpha = 1.0f
@@ -175,9 +190,7 @@ class OrderStagesActivity : AppCompatActivity() {
     }
 
     private fun onStageClick(stageNumber: Int) {
-        val currentStage = getCurrentActiveStage()
-
-        if (stageNumber > currentStage) {
+        if (stageNumber > currentActiveStage) {
             showMessage("Сначала завершите текущий этап")
             return
         }
@@ -188,7 +201,7 @@ class OrderStagesActivity : AppCompatActivity() {
                     val intent = Intent(this, Stage1DetailActivity::class.java).apply {
                         putExtra("ORDER", order)
                         putExtra("STAGE_NUMBER", 1)
-                        putExtra("IS_CURRENT_STAGE", stageNumber == currentStage)
+                        putExtra("IS_CURRENT_STAGE", stageNumber == currentActiveStage)
                     }
                     startActivityForResult(intent, stageNumber)
                 }
@@ -196,7 +209,7 @@ class OrderStagesActivity : AppCompatActivity() {
                     val intent = Intent(this, Stage2DetailActivity::class.java).apply {
                         putExtra("ORDER", order)
                         putExtra("STAGE_NUMBER", 2)
-                        putExtra("IS_CURRENT_STAGE", stageNumber == currentStage)
+                        putExtra("IS_CURRENT_STAGE", stageNumber == currentActiveStage)
                     }
                     startActivityForResult(intent, stageNumber)
                 }
@@ -204,7 +217,7 @@ class OrderStagesActivity : AppCompatActivity() {
                     val intent = Intent(this, Stage3DetailActivity::class.java).apply {
                         putExtra("ORDER", order)
                         putExtra("STAGE_NUMBER", 3)
-                        putExtra("IS_CURRENT_STAGE", stageNumber == currentStage)
+                        putExtra("IS_CURRENT_STAGE", stageNumber == currentActiveStage)
                     }
                     startActivityForResult(intent, stageNumber)
                 }
@@ -212,7 +225,7 @@ class OrderStagesActivity : AppCompatActivity() {
                     val intent = Intent(this, Stage4DetailActivity::class.java).apply {
                         putExtra("ORDER", order)
                         putExtra("STAGE_NUMBER", 4)
-                        putExtra("IS_CURRENT_STAGE", stageNumber == currentStage)
+                        putExtra("IS_CURRENT_STAGE", stageNumber == currentActiveStage)
                     }
                     startActivityForResult(intent, stageNumber)
                 }
@@ -225,21 +238,39 @@ class OrderStagesActivity : AppCompatActivity() {
         if (resultCode == RESULT_OK && data?.getBooleanExtra("STAGE_COMPLETED", false) == true) {
             val completedStage = requestCode
 
-            // Проверяем, что завершенный этап - это текущий активный этап
-            val currentStage = getCurrentActiveStage()
-            if (completedStage == currentStage) {
-                val nextStage = completedStage + 1
+            if (completedStage == currentActiveStage) {
+                // Отправляем запрос на сервер
+                completeStageOnServer(completedStage)
+            }
+        }
+    }
 
-                if (nextStage <= 4) {
-                    val orderNumber = currentOrder?.number ?: ""
-                    preferencesManager.saveCurrentStage(orderNumber, nextStage)
+    private fun completeStageOnServer(stageNumber: Int) {
+        currentOrder?.let { order ->
+            lifecycleScope.launch {
+                val driverId = getCurrentDriverId()
+                val response = orderRepository.completeStage(order.number, stageNumber, driverId)
+
+                // Добавь отладочный вывод
+                println("DEBUG completeStage: response = $response")
+                println("DEBUG completeStage: success = ${response?.success}")
+                println("DEBUG completeStage: message = ${response?.message}")
+
+                if (response != null && response.success) {
+                    currentActiveStage = response.nextStage
                     updateAllStagesStatus()
-                    showMessage("Этап $completedStage завершен! Переход к этапу $nextStage")
+                    showMessage("Этап $stageNumber завершен! Переход к этапу ${response.nextStage}")
                 } else {
-                    showMessage("Поздравляем! Все этапы выполнены!")
+                    showMessage(response?.message ?: "Ошибка при завершении этапа")
                 }
             }
         }
+    }
+
+    private fun getCurrentDriverId(): String {
+        // Временное решение - потом замените на реальное
+        // Получите ID из PreferencesManager или из сессии
+        return "driver_123"
     }
 
     private fun showMessage(message: String) {
@@ -247,7 +278,6 @@ class OrderStagesActivity : AppCompatActivity() {
     }
 }
 
-// Перечисление статусов (можно вынести в отдельный файл)
-enum class StageStatus {
+enum class StageUiStatus {
     PENDING, IN_PROGRESS, COMPLETED
 }

@@ -83,7 +83,6 @@ class Stage1DetailActivity : AppCompatActivity() {
     }
 
     private fun completeStageIfNeeded() {
-        // Если это текущий активный этап и еще не был завершен
         if (isCurrentStage && !hasBeenViewed) {
             hasBeenViewed = true
 
@@ -92,6 +91,7 @@ class Stage1DetailActivity : AppCompatActivity() {
                 putExtra("STAGE_NUMBER", stageNumber)
             }
             setResult(RESULT_OK, resultIntent)
+            // Не вызываем finish() здесь, он вызовется после onBackPressed
         }
     }
 

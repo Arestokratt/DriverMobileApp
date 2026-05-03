@@ -190,7 +190,7 @@ class DriversListActivity : BaseActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = RetrofitClient.instance.getDriversList()
+                val response = RetrofitClient.authApi.getDriversList()
 
                 withContext(Dispatchers.Main) {
                     allDrivers.clear()
