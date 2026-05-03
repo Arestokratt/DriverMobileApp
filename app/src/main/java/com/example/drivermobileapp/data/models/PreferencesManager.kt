@@ -24,6 +24,17 @@ class PreferencesManager(context: Context) {
         return prefs.getBoolean("stage_${orderNumber}_${stageNumber}", false)
     }
 
+    fun saveCurrentDriverId(driverId: String) {
+        println("DEBUG PREFS: saveCurrentDriverId = '$driverId'")
+        prefs.edit().putString("current_driver_id", driverId).apply()
+    }
+
+    fun getCurrentDriverId(): String {
+        val id = prefs.getString("current_driver_id", "") ?: ""
+        println("DEBUG PREFS: getCurrentDriverId = '$id'")
+        return id
+    }
+
     // Очистить кэш заказа
     fun clearOrderCache(orderNumber: String) {
         prefs.edit().remove("current_stage_$orderNumber").apply()

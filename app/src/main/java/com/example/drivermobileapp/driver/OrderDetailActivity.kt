@@ -6,11 +6,13 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import com.example.drivermobileapp.R
 import com.example.drivermobileapp.data.local.PreferencesManager
 //import com.example.drivermobileapp.data.models.Order
 //import com.example.drivermobileapp.data.models.OrderDriver
 import com.example.drivermobileapp.data.repository.OrderRepository
+import kotlinx.coroutines.launch
 
 class OrderDetailActivity : AppCompatActivity() {
 
@@ -24,7 +26,8 @@ class OrderDetailActivity : AppCompatActivity() {
     private var ordersType: String = ""
     private lateinit var preferencesManager: PreferencesManager  // ← Добавить
     private lateinit var orderRepository: OrderRepository  // ← Изменить на lateinit
-    private val currentDriverId = "driver1" // TODO: Получать из настроек/логина
+
+    private val currentDriverId: String by lazy { preferencesManager.getCurrentDriverId() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,9 +36,11 @@ class OrderDetailActivity : AppCompatActivity() {
         currentOrder = intent.getSerializableExtra("ORDER") as? OrderDriver
         ordersType = intent.getStringExtra("ORDERS_TYPE") ?: ""
 
-        // ← Добавить инициализацию
         preferencesManager = PreferencesManager(this)
         orderRepository = OrderRepository(preferencesManager)
+
+        // Добавь отладку
+        println("DEBUG: OrderDetailActivity currentDriverId = '${preferencesManager.getCurrentDriverId()}'")
 
         initViews()
         setupClickListeners()
@@ -120,26 +125,28 @@ class OrderDetailActivity : AppCompatActivity() {
     }
 
     private fun acceptOrder(order: OrderDriver) {
-        val success = orderRepository.acceptOrder(order.id, currentDriverId)
-
-        if (success) {
-            showMessage("Заявка №${order.number} принята")
-            setResult(RESULT_OK)
-            finish()
-        } else {
-            showMessage("Ошибка при принятии заявки")
+        lifecycleScope.launch {
+            val success = orderRepository.acceptOrder(order.number, currentDriverId)
+            if (success) {
+                showMessage("Заявка №${order.number} принята")
+                setResult(RESULT_OK)
+                finish()
+            } else {
+                showMessage("Ошибка при принятии заявки")
+            }
         }
     }
 
     private fun rejectOrder(order: OrderDriver) {
-        val success = orderRepository.rejectOrder(order.id)
-
-        if (success) {
-            showMessage("Заявка №${order.number} отклонена")
-            setResult(RESULT_OK)
-            finish()
-        } else {
-            showMessage("Ошибка при отклонении заявки")
+        lifecycleScope.launch {
+            val success = orderRepository.rejectOrder(order.number)
+            if (success) {
+                showMessage("Заявка №${order.number} отклонена")
+                setResult(RESULT_OK)
+                finish()
+            } else {
+                showMessage("Ошибка при отклонении заявки")
+            }
         }
     }
 

@@ -7,12 +7,15 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.drivermobileapp.R
 import com.example.drivermobileapp.data.local.PreferencesManager
 //import com.example.drivermobileapp.data.models.OrderDriver
 import com.example.drivermobileapp.data.repository.OrderRepository
+import kotlinx.coroutines.launch
+
 //import com.example.drivermobileapp.driver.adapters.OrderAdapter
 
 class OrdersListActivity : AppCompatActivity() {
@@ -27,21 +30,28 @@ class OrdersListActivity : AppCompatActivity() {
     private var ordersType: String = ""
     private lateinit var preferencesManager: PreferencesManager  // ← Добавить
     private lateinit var orderRepository: OrderRepository  // ← Изменить
-    private val currentDriverId = "driver1" // TODO: Получать из настроек/логина
+    private lateinit var currentDriverId: String // TODO: Получать из настроек/логина
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_orders_list)
 
         ordersType = intent.getStringExtra("ORDERS_TYPE") ?: ""
-        println("DEBUG: OrdersListActivity started with type: '$ordersType'")
+        println("DEBUG: ordersType = '$ordersType'")
 
-        // ← Добавить инициализацию
         preferencesManager = PreferencesManager(this)
         orderRepository = OrderRepository(preferencesManager)
 
-        // Добавляем тестовые данные (если нужно)
-        // orderRepository.addTestOrders() // ← Этот метод нужно будет реализовать или убрать
+        currentDriverId = preferencesManager.getCurrentDriverId()
+        println("DEBUG: currentDriverId after get = '$currentDriverId'")
+
+        // Если ID пустой, попробуй получить из shared preferences напрямую
+        if (currentDriverId.isEmpty()) {
+            val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+            val savedId = prefs.getString("current_driver_id", "")
+            println("DEBUG: savedId from prefs = '$savedId'")
+            currentDriverId = savedId ?: ""
+        }
 
         initViews()
         setupClickListeners()
@@ -84,31 +94,41 @@ class OrdersListActivity : AppCompatActivity() {
         rvOrders.visibility = RecyclerView.GONE
         tvEmptyList.visibility = TextView.GONE
 
-        // Имитируем загрузку
-        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-            val orders = when (ordersType) {
-                "incoming" -> orderRepository.getIncomingOrders()
-                "my_orders" -> orderRepository.getMyOrders(currentDriverId)
-                else -> emptyList()
-            }
+        println("DEBUG: loadOrders called, ordersType = $ordersType, driverId = $currentDriverId")
 
-            orderAdapter.updateOrders(orders)
-
-            progressBar.visibility = ProgressBar.GONE
-
-            if (orders.isEmpty()) {
-                tvEmptyList.visibility = TextView.VISIBLE
-                rvOrders.visibility = RecyclerView.GONE
-                tvEmptyList.text = when (ordersType) {
-                    "incoming" -> "Нет входящих заявок"
-                    "my_orders" -> "У вас нет принятых заявок"
-                    else -> "Нет заявок"
+        lifecycleScope.launch {
+            try {
+                val orders = when (ordersType) {
+                    "incoming" -> orderRepository.getIncomingOrders(currentDriverId)
+                    "my_orders" -> orderRepository.getMyOrders(currentDriverId)
+                    else -> emptyList()
                 }
-            } else {
-                tvEmptyList.visibility = TextView.GONE
-                rvOrders.visibility = RecyclerView.VISIBLE
+                println("DEBUG: orders loaded, count = ${orders.size}")
+
+                orderAdapter.updateOrders(orders)
+
+                progressBar.visibility = ProgressBar.GONE
+
+                if (orders.isEmpty()) {
+                    tvEmptyList.visibility = TextView.VISIBLE
+                    rvOrders.visibility = RecyclerView.GONE
+                    tvEmptyList.text = when (ordersType) {
+                        "incoming" -> "Нет входящих заявок"
+                        "my_orders" -> "У вас нет принятых заявок"
+                        else -> "Нет заявок"
+                    }
+                } else {
+                    tvEmptyList.visibility = TextView.GONE
+                    rvOrders.visibility = RecyclerView.VISIBLE
+                }
+            } catch (e: Exception) {
+                println("DEBUG: Error loading orders: ${e.message}")
+                e.printStackTrace()
+                progressBar.visibility = ProgressBar.GONE
+                tvEmptyList.visibility = TextView.VISIBLE
+                tvEmptyList.text = "Ошибка загрузки: ${e.message}"
             }
-        }, 500)
+        }
     }
 
     private fun onOrderClick(order: OrderDriver) {

@@ -124,7 +124,7 @@ class OrderStagesActivity : AppCompatActivity() {
     private fun loadStagesFromServer() {
         currentOrder?.let { order ->
             lifecycleScope.launch {
-                val response = orderRepository.loadOrderStages(order.number)  // ← Изменено
+                val response = orderRepository.getOrderStages(order.number)  // ← Изменено
                 if (response != null) {
                     currentActiveStage = response.currentStage
                     updateAllStagesStatus()

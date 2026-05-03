@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog
 import com.example.drivermobileapp.BaseActivity  // ← Изменено
 import com.example.drivermobileapp.R
 import com.example.drivermobileapp.data.api.RetrofitClient
+import com.example.drivermobileapp.data.local.PreferencesManager
 import com.example.drivermobileapp.data.models.User
 import com.example.drivermobileapp.data.repositories.ShiftRepository
 import com.example.drivermobileapp.driver.OrdersListActivity
@@ -39,12 +40,24 @@ class DriverActivity : BaseActivity() {  // ← Изменено: AppCompatActiv
     private lateinit var shiftRepository: ShiftRepository
     private lateinit var user: User
 
+    private lateinit var preferencesManager: PreferencesManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_driver)
 
-        // Инициализируем Repository с нашим API
+        preferencesManager = PreferencesManager(this)
         shiftRepository = ShiftRepository(RetrofitClient.authApi)
+
+        user = intent.getSerializableExtra("USER_DATA") as? User ?: return
+
+        // Сохраняем ID
+        preferencesManager.saveCurrentDriverId(user.id)
+        println("DEBUG DRIVER: Saved driverId = ${user.id}")
+
+        // Проверяем, что сохранилось
+        val savedId = preferencesManager.getCurrentDriverId()
+        println("DEBUG DRIVER: Verified saved driverId = $savedId")
 
         initViews()
         setupClickListeners()
@@ -184,13 +197,11 @@ class DriverActivity : BaseActivity() {  // ← Изменено: AppCompatActiv
         val progressBar = dialog.findViewById<ProgressBar>(R.id.progressBar)!!
         val btnConfirm = dialog.findViewById<Button>(R.id.btnConfirmStart)!!
 
-
         progressBar.visibility = View.VISIBLE
         btnConfirm.isEnabled = false
 
         CoroutineScope(Dispatchers.IO).launch {
-            // Передаем ВУ и гос. номер
-            val result = shiftRepository.startShift(user.id, driverLicense, licensePlate)  // ← изменено
+            val result = shiftRepository.startShift(user.id, driverLicense, licensePlate)
 
             withContext(Dispatchers.Main) {
                 progressBar.visibility = View.GONE
@@ -200,7 +211,7 @@ class DriverActivity : BaseActivity() {  // ← Изменено: AppCompatActiv
                     onSuccess = { shiftId ->
                         isShiftActive = true
                         updateUIState()
-                        showMessage("Смена начата. ID: $shiftId")
+                        showMessage("Смена начата")
                         dialog.dismiss()
                     },
                     onFailure = { exception ->

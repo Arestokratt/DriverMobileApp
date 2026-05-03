@@ -1,11 +1,13 @@
 package com.example.drivermobileapp.data.repository
 
 import OrderDriver
+import com.example.drivermobileapp.data.api.RetrofitClient
 import com.example.drivermobileapp.data.api.ApiStageStatus
+import com.example.drivermobileapp.data.api.OrderStagesResponse
 import com.example.drivermobileapp.data.api.CompleteStageRequest
 import com.example.drivermobileapp.data.api.CompleteStageResponse
-import com.example.drivermobileapp.data.api.OrderStagesResponse
-import com.example.drivermobileapp.data.api.RetrofitClient
+import com.example.drivermobileapp.data.api.AcceptOrderRequest
+import com.example.drivermobileapp.data.api.OrderResponse
 import com.example.drivermobileapp.data.local.PreferencesManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -14,7 +16,9 @@ class OrderRepository(private val prefs: PreferencesManager) {
 
     private val orderApi = RetrofitClient.orderApi
 
-    suspend fun loadOrderStages(orderNumber: String): OrderStagesResponse? {
+    // ========== РАБОТА С ЭТАПАМИ (API) ==========
+
+    suspend fun getOrderStages(orderNumber: String): OrderStagesResponse? {
         return withContext(Dispatchers.IO) {
             try {
                 val response = orderApi.getOrderStages(orderNumber)
@@ -24,11 +28,12 @@ class OrderRepository(private val prefs: PreferencesManager) {
                 }
                 response
             } catch (e: Exception) {
+                // Если сервер не отвечает, берем из кэша
                 val cachedStage = prefs.getCurrentStage(orderNumber)
-                val stages = mutableMapOf<Int, ApiStageStatus>()  // ← Изменено
+                val stages = mutableMapOf<Int, ApiStageStatus>()
                 for (i in 1..7) {
                     val isCompleted = prefs.isStageCompleted(orderNumber, i)
-                    stages[i] = ApiStageStatus(isCompleted = isCompleted)  // ← Изменено
+                    stages[i] = ApiStageStatus(isCompleted = isCompleted)
                 }
 
                 OrderStagesResponse(
@@ -44,103 +49,113 @@ class OrderRepository(private val prefs: PreferencesManager) {
     suspend fun completeStage(orderNumber: String, stageNumber: Int, driverId: String): CompleteStageResponse? {
         return withContext(Dispatchers.IO) {
             try {
-                // ВРЕМЕННО: имитируем успешный ответ
-                prefs.saveStageCompleted(orderNumber, stageNumber, true)
-                prefs.saveCurrentStage(orderNumber, stageNumber + 1)
-
-                CompleteStageResponse(
-                    success = true,
-                    nextStage = stageNumber + 1,
-                    message = "Этап завершен"
-                )
-
-                /* Оригинальный код (закомментирован)
                 val request = CompleteStageRequest(driverId = driverId)
                 val response = orderApi.completeStage(orderNumber, stageNumber, request)
+
                 if (response.success) {
                     prefs.saveStageCompleted(orderNumber, stageNumber, true)
                     prefs.saveCurrentStage(orderNumber, response.nextStage)
                 }
                 response
-                */
             } catch (e: Exception) {
                 null
             }
         }
     }
-    // Временные методы для работы без сервера
-    fun acceptOrder(orderId: String, driverId: String): Boolean {
-        // TODO: Реализовать API вызов
-        return true
+
+    // ========== РАБОТА СО СПИСКАМИ ЗАЯВОК (API) ==========
+
+    suspend fun getIncomingOrders(driverId: String): List<OrderDriver> {
+        return withContext(Dispatchers.IO) {
+            try {
+                println("DEBUG CLIENT: Calling API with URL: http://10.0.2.2:8080/api/driver/$driverId/incoming-orders")
+                val response = orderApi.getIncomingOrders(driverId)
+                println("DEBUG CLIENT: API call successful, response size = ${response.size}")
+                response.map { convertToOrderDriver(it) }
+            } catch (e: Exception) {
+                println("DEBUG CLIENT: API call FAILED: ${e.message}")
+                e.printStackTrace()
+                emptyList()
+            }
+        }
     }
 
-    fun rejectOrder(orderId: String): Boolean {
-        // TODO: Реализовать API вызов
-        return true
+    suspend fun getMyOrders(driverId: String): List<OrderDriver> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = orderApi.getMyOrders(driverId)
+                response.map { convertToOrderDriver(it) }
+            } catch (e: Exception) {
+                emptyList()
+            }
+        }
     }
 
-    // ========== ТЕСТОВЫЕ ДАННЫЕ (ВРЕМЕННО) ==========
-    fun getIncomingOrders(): List<OrderDriver> {
-        return listOf(
-            OrderDriver(
-                id = "1",
-                number = "ORD-001",
-                status = OrderDriver.OrderStatus.PENDING,
-                driverId = null,
-                customerName = "ООО Ромашка",
-                address = "г. Москва, ул. Ленина, 10",
-                createdAt = System.currentTimeMillis(),
-                plannedDeliveryTime = null,
-                terminalPickupAddress = "г. Москва, ул. Терминальная, д. 1",
-                containerType = "20ft",
-                containerCount = 2,
-                containerDeliveryTime = System.currentTimeMillis(),
-                loadingAddress = "г. Москва, ул. Заводская, д. 15",
-                cargoName = "Строительные материалы",
-                cargoWeight = 2500.5,
-                loadingContact = "Иванов Иван",
-                departureStation = "Москва-Товарная",
-                departureContact = "Петров Петр",
-                destinationStation = "Санкт-Петербург-Сортировочный",
-                destinationContact = "Сидоров Алексей",
-                unloadingAddress = "г. Санкт-Петербург, ул. Складская, д. 10",
-                unloadingContact = "Кузнецов Николай",
-                terminalReturnAddress = "г. Санкт-Петербург, ул. Терминальная, д. 5"
-            )
+    suspend fun acceptOrder(orderNumber: String, driverId: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                println("DEBUG CLIENT: acceptOrder called with driverId = '$driverId'")
+                val response = orderApi.acceptOrder(orderNumber, AcceptOrderRequest(driverId))
+                println("DEBUG CLIENT: acceptOrder response success = ${response.success}")
+                response.success
+            } catch (e: Exception) {
+                println("DEBUG CLIENT: acceptOrder error = ${e.message}")
+                false
+            }
+        }
+    }
+
+    suspend fun rejectOrder(orderNumber: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = orderApi.rejectOrder(orderNumber)
+                response.success
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
+
+    // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
+
+    private fun convertToOrderDriver(response: OrderResponse): OrderDriver {
+        return OrderDriver(
+            id = response.id.toString(),
+            number = response.orderNumber,
+            status = convertStatus(response.status),
+            driverId = response.assignedDriverId,
+            customerName = response.loadingContactPerson,
+            address = response.containerLoadingAddress,
+            createdAt = System.currentTimeMillis(),
+            plannedDeliveryTime = null,
+            terminalPickupAddress = response.emptyContainerTerminalAddress,
+            containerType = response.containerType,
+            containerCount = response.containerCount,
+            containerDeliveryTime = response.containerDeliveryDateTime,
+            loadingAddress = response.containerLoadingAddress,
+            cargoName = response.cargoName,
+            cargoWeight = response.cargoWeight,
+            loadingContact = response.loadingContactPerson,
+            departureStation = response.departureStationName,
+            departureContact = response.departureStationContact,
+            destinationStation = response.destinationStationName,
+            destinationContact = response.destinationStationContact,
+            unloadingAddress = response.unloadingAddress,
+            unloadingContact = response.unloadingContactPerson,
+            terminalReturnAddress = response.returnTerminalAddress
         )
     }
 
-    fun getMyOrders(driverId: String): List<OrderDriver> {
-        return listOf(
-            OrderDriver(
-                id = "2",
-                number = "ORD-002",
-                status = OrderDriver.OrderStatus.ACCEPTED,
-                driverId = driverId,
-                customerName = "ООО Лютик",
-                address = "г. Санкт-Петербург, ул. Пушкина, 5",
-                createdAt = System.currentTimeMillis(),
-                plannedDeliveryTime = null,
-                terminalPickupAddress = "г. Москва, ул. Терминальная, д. 2",
-                containerType = "40ft",
-                containerCount = 1,
-                containerDeliveryTime = System.currentTimeMillis(),
-                loadingAddress = "г. Москва, ул. Заводская, д. 20",
-                cargoName = "Оборудование",
-                cargoWeight = 5000.0,
-                loadingContact = "Сергеев Сергей",
-                departureStation = "Москва-Пассажирская",
-                departureContact = "Алексеев Алексей",
-                destinationStation = "Нижний Новгород-Сортировочный",
-                destinationContact = "Николаев Николай",
-                unloadingAddress = "г. Нижний Новгород, ул. Промышленная, д. 5",
-                unloadingContact = "Дмитриев Дмитрий",
-                terminalReturnAddress = "г. Нижний Новгород, ул. Терминальная, д. 3"
-            )
-        )
-    }
-
-    fun addTestOrders() {
-        // Только для тестирования
+    private fun convertStatus(status: String): OrderDriver.OrderStatus {
+        return when (status.uppercase()) {
+            "PENDING" -> OrderDriver.OrderStatus.PENDING
+            "NEW" -> OrderDriver.OrderStatus.NEW
+            "ACCEPTED" -> OrderDriver.OrderStatus.ACCEPTED
+            "IN_PROGRESS" -> OrderDriver.OrderStatus.IN_PROGRESS
+            "COMPLETED" -> OrderDriver.OrderStatus.COMPLETED
+            "CANCELLED" -> OrderDriver.OrderStatus.CANCELLED
+            "REJECTED" -> OrderDriver.OrderStatus.CANCELLED
+            else -> OrderDriver.OrderStatus.PENDING
+        }
     }
 }
