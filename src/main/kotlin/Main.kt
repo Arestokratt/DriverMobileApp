@@ -13,6 +13,7 @@ import java.sql.SQLException
 import models.responses.ErrorResponse
 import routes.shiftRoutes
 import routes.userRoutes
+import routes.orderRoutes  // ← Добавить импорт
 
 fun main() {
     embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
@@ -76,6 +77,7 @@ fun main() {
         routing {
             userRoutes()
             shiftRoutes()
+            orderRoutes()
         }
     }.start(wait = true)
 }
